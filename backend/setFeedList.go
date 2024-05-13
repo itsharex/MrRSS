@@ -23,6 +23,7 @@ func SetFeedList(feeds []FeedsInfo) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	stmt, err := tx.Prepare("INSERT OR REPLACE INTO [Feeds]([Link], [Category]) values(?, ?)")
 	if err != nil {
 		log.Fatal(err)
@@ -34,6 +35,35 @@ func SetFeedList(feeds []FeedsInfo) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+	tx.Commit()
+}
+
+func DeleteFeedList(feed FeedsInfo) {
+	if dbFilePath == "" {
+		log.Fatal("Database file path is not set")
+	}
+
+	db, err := sql.Open("sqlite", dbFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Delete feeds from the Feeds table
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+	stmt, err := tx.Prepare("DELETE FROM [Feeds] WHERE [Link] = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(feed.Link)
+	if err != nil {
+		log.Fatal(err)
 	}
 	tx.Commit()
 }

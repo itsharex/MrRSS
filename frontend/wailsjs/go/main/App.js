@@ -6,6 +6,10 @@ export function ClearHistory() {
   return window['go']['main']['App']['ClearHistory']();
 }
 
+export function DeleteFeedList(arg1) {
+  return window['go']['main']['App']['DeleteFeedList'](arg1);
+}
+
 export function GetFeedContent() {
   return window['go']['main']['App']['GetFeedContent']();
 }
@@ -20,6 +24,10 @@ export function GetHistory() {
 
 export function InitDatabase() {
   return window['go']['main']['App']['InitDatabase']();
+}
+
+export function SetFeedList(arg1) {
+  return window['go']['main']['App']['SetFeedList'](arg1);
 }
 
 export function SetHistory(arg1) {

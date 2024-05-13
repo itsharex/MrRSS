@@ -4,6 +4,8 @@ import {backend} from '../models';
 
 export function ClearHistory():Promise<void>;
 
+export function DeleteFeedList(arg1:backend.FeedsInfo):Promise<void>;
+
 export function GetFeedContent():Promise<Array<backend.FeedContentsInfo>>;
 
 export function GetFeedList():Promise<Array<backend.FeedsInfo>>;
@@ -11,6 +13,8 @@ export function GetFeedList():Promise<Array<backend.FeedsInfo>>;
 export function GetHistory():Promise<Array<backend.FeedContentsInfo>>;
 
 export function InitDatabase():Promise<void>;
+
+export function SetFeedList(arg1:Array<backend.FeedsInfo>):Promise<void>;
 
 export function SetHistory(arg1:Array<backend.FeedContentsInfo>):Promise<void>;
 

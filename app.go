@@ -25,16 +25,24 @@ func (a *App) startup(ctx context.Context) {
 func (a *App) InitDatabase() {
 	backend.InitDatabase()
 	feeds := []backend.FeedsInfo{
-		{Link: "https://www.kawabangga.com/feed", Category: "blog"},
-		{Link: "https://jvns.ca/atom.xml", Category: "wensite"},
-		{Link: "https://www.ruanyifeng.com/blog/atom.xml", Category: "blog"},
-		{Link: "https://www.appinn.com/feed/", Category: "website"},
+		{Link: "https://www.kawabangga.com/feed", Category: "RSS/Atom"},
+		{Link: "https://jvns.ca/atom.xml", Category: "RSS/Atom"},
+		{Link: "https://www.ruanyifeng.com/blog/atom.xml", Category: "RSS/Atom"},
+		{Link: "https://www.appinn.com/feed/", Category: "RSS/Atom"},
 	}
 	backend.SetFeedList(feeds)
 }
 
 func (a *App) GetFeedList() []backend.FeedsInfo {
 	return backend.GetFeedList()
+}
+
+func (a *App) SetFeedList(feeds []backend.FeedsInfo) {
+	backend.SetFeedList(feeds)
+}
+
+func (a *App) DeleteFeedList(feed backend.FeedsInfo) {
+	backend.DeleteFeedList(feed)
 }
 
 func (a *App) GetFeedContent() []backend.FeedContentsInfo {
