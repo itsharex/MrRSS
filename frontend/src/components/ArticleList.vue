@@ -1,12 +1,100 @@
 <script setup>
 import { store } from '../store.js';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { BrowserOpenURL } from '../wailsjs/wailsjs/runtime/runtime.js';
 
 const listRef = ref(null);
+const articleRefs = ref({});
+const translationSettings = ref({
+    enabled: false,
+    targetLang: 'en'
+});
+const translatingArticles = ref(new Set());
 
 const props = defineProps(['isSidebarOpen']);
 const emit = defineEmits(['toggleSidebar']);
+
+// Load translation settings
+onMounted(async () => {
+    try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        translationSettings.value = {
+            enabled: data.translation_enabled === 'true',
+            targetLang: data.target_language || 'en'
+        };
+        
+        // Set up intersection observer for auto-translation
+        if (translationSettings.value.enabled) {
+            setupIntersectionObserver();
+        }
+    } catch (e) {
+        console.error('Error loading translation settings:', e);
+    }
+});
+
+// Intersection Observer for auto-translation
+let observer = null;
+
+function setupIntersectionObserver() {
+    observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const articleId = parseInt(entry.target.dataset.articleId);
+                const article = store.articles.find(a => a.id === articleId);
+                
+                // Only translate if article exists, has no translation, and is not already being translated
+                if (article && !article.translated_title && !translatingArticles.value.has(articleId)) {
+                    translateArticle(article);
+                }
+            }
+        });
+    }, {
+        root: listRef.value,
+        rootMargin: '100px',
+        threshold: 0.1
+    });
+}
+
+async function translateArticle(article) {
+    if (translatingArticles.value.has(article.id)) return;
+    
+    translatingArticles.value.add(article.id);
+    
+    try {
+        const res = await fetch('/api/articles/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                article_id: article.id,
+                title: article.title,
+                target_language: translationSettings.value.targetLang
+            })
+        });
+        
+        if (res.ok) {
+            const data = await res.json();
+            // Update the article in the store
+            article.translated_title = data.translated_title;
+        }
+    } catch (e) {
+        console.error('Error translating article:', e);
+    } finally {
+        translatingArticles.value.delete(article.id);
+    }
+}
+
+function observeArticle(el, articleId) {
+    if (el && observer && translationSettings.value.enabled) {
+        observer.observe(el);
+    }
+}
+
+onBeforeUnmount(() => {
+    if (observer) {
+        observer.disconnect();
+    }
+});
 
 function handleScroll(e) {
     const { scrollTop, clientHeight, scrollHeight } = e.target;
@@ -107,6 +195,8 @@ async function refreshArticles() {
             </div>
             
             <div v-for="article in filteredArticles" :key="article.id" 
+                 :data-article-id="article.id"
+                 :ref="el => observeArticle(el, article.id)"
                  @click="selectArticle(article)"
                  @contextmenu="onArticleContextMenu($event, article)"
                  :class="['article-card', article.is_read ? 'read' : '', article.is_favorite ? 'favorite' : '', store.currentArticleId === article.id ? 'active' : '']">

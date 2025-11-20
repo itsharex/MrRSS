@@ -62,7 +62,7 @@ func main() {
 
 	translator := translation.NewGoogleFreeTranslator()
 	fetcher := feed.NewFetcher(db, translator)
-	h := handlers.NewHandler(db, fetcher)
+	h := handlers.NewHandler(db, fetcher, translator)
 
 	// API Routes
 	log.Println("Setting up API routes...")
@@ -75,6 +75,7 @@ func main() {
 	apiMux.HandleFunc("/api/articles/read", h.HandleMarkRead)
 	apiMux.HandleFunc("/api/articles/favorite", h.HandleToggleFavorite)
 	apiMux.HandleFunc("/api/articles/cleanup", h.HandleCleanupArticles)
+	apiMux.HandleFunc("/api/articles/translate", h.HandleTranslateArticle)
 	apiMux.HandleFunc("/api/settings", h.HandleSettings)
 	apiMux.HandleFunc("/api/refresh", h.HandleRefresh)
 	apiMux.HandleFunc("/api/progress", h.HandleProgress)

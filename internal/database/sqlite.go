@@ -374,3 +374,10 @@ func (db *DB) CleanupUnimportantArticles() (int64, error) {
 	
 	return count, nil
 }
+
+// UpdateArticleTranslation updates the translated_title field for an article
+func (db *DB) UpdateArticleTranslation(id int64, translatedTitle string) error {
+	db.WaitForReady()
+	_, err := db.Exec("UPDATE articles SET translated_title = ? WHERE id = ?", translatedTitle, id)
+	return err
+}
