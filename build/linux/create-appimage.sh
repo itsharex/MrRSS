@@ -84,6 +84,7 @@ if [ -f "imgs/logo.svg" ] && (command -v inkscape &> /dev/null || command -v con
         cp "${APPDIR}/usr/share/icons/hicolor/256x256/apps/${APP_NAME}.png" "${APPDIR}/${APP_NAME}.png"
     fi
 elif [ -f "build/appicon.png" ]; then
+    # Fallback to pre-built PNG icon from Wails build process
     echo "Using existing PNG icon..."
     cp "build/appicon.png" "${APPDIR}/usr/share/icons/hicolor/256x256/apps/${APP_NAME}.png"
     cp "build/appicon.png" "${APPDIR}/${APP_NAME}.png"
