@@ -137,11 +137,12 @@ jobs:
             platform: windows
             arch: arm64
             ext: '.exe'
-          # macOS builds (universal only)
+          # macOS builds
           - os: macos-latest
             platform: darwin
             arch: universal
             ext: '.app'
+          # Note: We use universal builds for macOS which includes both amd64 and arm64
     
     steps:
       - uses: actions/checkout@v6
@@ -165,15 +166,24 @@ jobs:
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev gcc pkg-config wget file libfuse2 imagemagick
           # Install ARM64 cross-compilation tools if needed
           if [ "${{ matrix.arch }}" = "arm64" ]; then
+            sudo dpkg --add-architecture arm64
+            sudo apt-get update
             sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+            sudo apt-get install -y libgtk-3-dev:arm64 libwebkit2gtk-4.1-dev:arm64
+          else
+            # Verify webkit2gtk-4.1 is installed for amd64
+            pkg-config --modversion webkit2gtk-4.1 || (echo "webkit2gtk-4.1 not found" && exit 1)
           fi
-          # Verify webkit2gtk-4.1 is installed
-          pkg-config --modversion webkit2gtk-4.1 || (echo "webkit2gtk-4.1 not found" && exit 1)
       
       - name: Install Windows dependencies
         if: matrix.platform == 'windows'
         run: |
           choco install mingw nsis -y
+          # For ARM64 builds, we rely on Go's cross-compilation capabilities
+          # CGO cross-compilation for Windows ARM64 is complex and may not work reliably
+          if ("${{ matrix.arch }}" -eq "arm64") {
+            Write-Host "Building for ARM64. Note: This may have limited CGO support."
+          }
         shell: pwsh
       
       - name: Install Wails
@@ -193,12 +203,32 @@ jobs:
           if [ "${{ matrix.arch }}" = "arm64" ]; then
             export CC=aarch64-linux-gnu-gcc
             export CXX=aarch64-linux-gnu-g++
+            export CGO_ENABLED=1
+            export GOOS=linux
+            export GOARCH=arm64
+            export PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig
           fi
           wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }} -tags webkit2_41
       
-      - name: Build application (Non-Linux)
-        if: matrix.platform != 'linux'
-        run: wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
+      - name: Build application (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          # For ARM64, set cross-compilation environment
+          # Note: WebView2 on Windows may have issues with cross-compilation
+          if ("${{ matrix.arch }}" -eq "arm64") {
+            $env:CGO_ENABLED = "0"  # Disable CGO for ARM64 cross-compilation
+            $env:GOOS = "windows"
+            $env:GOARCH = "arm64"
+          }
+          wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
+      
+      - name: Build application (macOS)
+        if: matrix.platform == 'darwin'
+        run: |
+          # macOS runners can build universal binaries natively
+          # This includes both amd64 and arm64 architectures
+          wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
       
       - name: Create installer (Windows)
         if: matrix.platform == 'windows'
