@@ -307,8 +307,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.AUTH_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ./build/bin/MrRSS-${{ needs.create-release.outputs.version }}-darwin-universal.dmg
-          asset_name: MrRSS-${{ needs.create-release.outputs.version }}-darwin-universal.dmg
+          asset_path: ./build/bin/MrRSS-${{ needs.create-release.outputs.version }}-darwin-${{ matrix.arch }}.dmg
+          asset_name: MrRSS-${{ needs.create-release.outputs.version }}-darwin-${{ matrix.arch }}.dmg
           asset_content_type: application/octet-stream
         continue-on-error: true
       
