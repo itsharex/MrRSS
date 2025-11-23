@@ -360,10 +360,14 @@ async function handleDownloadInstallUpdate() {
 
 <style scoped>
 .tab-btn {
-    @apply px-5 py-3 bg-transparent border-b-2 border-transparent text-text-secondary font-semibold cursor-pointer hover:text-text-primary hover:bg-bg-tertiary/50 transition-all relative;
+    @apply px-5 py-3 bg-transparent border-b-2 border-transparent text-text-secondary font-semibold cursor-pointer hover:text-text-primary transition-all relative;
+}
+.tab-btn:hover {
+    background-color: rgba(128, 128, 128, 0.1);
 }
 .tab-btn.active {
-    @apply text-accent border-accent bg-bg-tertiary/30;
+    @apply text-accent border-accent;
+    background-color: rgba(128, 128, 128, 0.05);
 }
 .tab-btn.active::after {
     content: '';
