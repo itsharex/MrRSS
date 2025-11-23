@@ -61,7 +61,7 @@ onUnmounted(() => {
 <template>
     <div class="space-y-6">
         <div class="setting-group">
-            <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
+            <label class="font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
                 <i class="ph ph-palette text-base"></i>
                 {{ store.i18n.t('appearance') }}
             </label>
@@ -95,7 +95,7 @@ onUnmounted(() => {
         </div>
 
         <div class="setting-group">
-            <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
+            <label class="font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
                 <i class="ph ph-arrow-clockwise text-base"></i>
                 {{ store.i18n.t('updates') }}
             </label>
@@ -112,7 +112,7 @@ onUnmounted(() => {
         </div>
 
         <div class="setting-group">
-            <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
+            <label class="font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
                 <i class="ph ph-database text-base"></i>
                 {{ store.i18n.t('database') }}
             </label>
@@ -159,7 +159,7 @@ onUnmounted(() => {
         </div>
 
         <div class="setting-group">
-            <label class="block font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
+            <label class="font-semibold mb-3 text-text-secondary uppercase text-xs tracking-wider flex items-center gap-2">
                 <i class="ph ph-globe text-base"></i>
                 {{ store.i18n.t('translation') }}
             </label>

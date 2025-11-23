@@ -4,8 +4,6 @@
 
 MrRSS is a cross-platform desktop RSS reader built with Wails (Go + Vue.js). It emphasizes simplicity, privacy, and modern UI design.
 
-**Current Version**: 1.1.4
-
 ## Tech Stack
 
 - **Backend**: Go 1.21+, Wails v2, SQLite (`modernc.org/sqlite`)
@@ -668,8 +666,6 @@ cd frontend && npm run build       # Build frontend assets
 5. `README.md` - Version badge
 6. `README_zh.md` - Version badge
 7. `CHANGELOG.md` - Add new version entry
-
-**Always use Semantic Versioning**: MAJOR.MINOR.PATCH (e.g., 1.1.4)
 
 ## Quick Reference
 

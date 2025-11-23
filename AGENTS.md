@@ -10,7 +10,6 @@ This document provides comprehensive guidance for AI agents (like GitHub Copilot
 - **Frontend**: Vue.js 3 (Composition API) with Tailwind CSS
 - **Database**: SQLite with `modernc.org/sqlite` driver
 - **Build Tool**: Wails CLI v2.11+
-- **Current Version**: 1.1.4
 
 ### Core Functionality
 
@@ -306,6 +305,7 @@ wails build -clean -ldflags "-s -w"
 
 1. Edit `frontend/src/i18n.js`
 2. Add keys to both `en` and `zh` sections:
+
    ```javascript
    export const translations = {
        en: {
@@ -318,6 +318,7 @@ wails build -clean -ldflags "-s -w"
        }
    };
    ```
+
 3. Use `store.i18n.t('newKey')` in templates
 4. Test language switching in UI
 
@@ -334,6 +335,7 @@ The auto-cleanup system has configurable settings:
    - Currently tracks DB size but doesn't enforce limit
 
 **Cleanup Logic** (`internal/database/sqlite.go`):
+
 ```go
 // Articles older than max_article_age_days are deleted
 // EXCEPT favorited articles which are kept forever
@@ -342,6 +344,7 @@ DELETE FROM articles WHERE published_at < ? AND is_favorite = 0
 ```
 
 **Cleanup Triggers**:
+
 - Manual: User clicks "Clean Database" in Settings → Feeds tab
 - Automatic: After each auto-refresh (if enabled in settings)
 - On startup: If auto-cleanup enabled
@@ -361,6 +364,7 @@ The in-app update system checks GitHub releases:
 6. **Cleanup**: Installer file deleted 3-5 seconds after launch
 
 **Security Measures**:
+
 - URL validation (must be from official GitHub repo)
 - File path validation (prevents traversal attacks)
 - Extension validation (platform-specific)
@@ -474,11 +478,13 @@ try {
 ### Required Version Updates
 
 1. **`internal/version/version.go`**
+
    ```go
    const Version = "X.Y.Z"  // Update this constant
    ```
 
 2. **`wails.json`** (2 locations in same file)
+
    ```json
    {
      "version": "X.Y.Z",
@@ -490,6 +496,7 @@ try {
    ```
 
 3. **`frontend/package.json`**
+
    ```json
    {
      "version": "X.Y.Z",
@@ -498,21 +505,25 @@ try {
    ```
 
 4. **`frontend/src/components/modals/settings/AboutTab.vue`**
+
    ```vue
    const appVersion = ref('X.Y.Z');  // Update default version
    ```
 
 5. **`README.md`** (version badge)
+
    ```markdown
    [![Version](https://img.shields.io/badge/version-X.Y.Z-blue.svg)](...)
    ```
 
 6. **`README_zh.md`** (version badge)
+
    ```markdown
    [![Version](https://img.shields.io/badge/version-X.Y.Z-blue.svg)](...)
    ```
 
 7. **`CHANGELOG.md`** (add new version entry at top)
+
    ```markdown
    ## [X.Y.Z] - YYYY-MM-DD
    
@@ -545,13 +556,6 @@ Follow **Semantic Versioning** (MAJOR.MINOR.PATCH):
 - [ ] Update `CHANGELOG.md` with changes
 - [ ] Test that version displays correctly in About tab
 - [ ] Run all tests to ensure nothing broke
-
-## Version Management
-
-- Version in `wails.json`: `"version"` and `"productVersion"`
-- Version in frontend: `SettingsModal.vue` About tab
-- Follow Semantic Versioning (MAJOR.MINOR.PATCH)
-- Current: 1.1.0
 
 ## Resources
 

@@ -13,16 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Max cache size setting (default 20MB) - controls maximum database size before cleanup
   - Max article age setting (default 30 days) - automatically delete articles older than specified days (except favorites)
 - Download progress bar during update download
-- Visual feedback showing download percentage
+- App automatically closes after starting installer to prevent conflicts during update
 - Automatic cleanup of installation packages after update installation
 
 ### Changed
 
 - Settings now auto-save immediately when changed (no need to click save button)
-- Settings dialog remains open after changes are applied
-- Updated cleanup logic to use configurable age threshold instead of fixed 7-day/30-day periods
-- Improved update installation process with better cleanup handling per platform
-- App automatically closes after starting installer to prevent conflicts during update
 
 ### Removed
 

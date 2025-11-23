@@ -57,33 +57,6 @@ onMounted(async () => {
     }
 });
 
-async function saveSettings() {
-    try {
-        await fetch('/api/settings', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                update_interval: settings.value.update_interval.toString(),
-                translation_enabled: settings.value.translation_enabled.toString(),
-                target_language: settings.value.target_language,
-                translation_provider: settings.value.translation_provider,
-                deepl_api_key: settings.value.deepl_api_key,
-                auto_cleanup_enabled: settings.value.auto_cleanup_enabled.toString(),
-                max_cache_size_mb: settings.value.max_cache_size_mb.toString(),
-                max_article_age_days: settings.value.max_article_age_days.toString(),
-                language: settings.value.language,
-                theme: settings.value.theme
-            })
-        });
-        store.i18n.setLocale(settings.value.language);
-        store.setTheme(settings.value.theme);
-        store.startAutoRefresh(settings.value.update_interval);
-        emit('close');
-    } catch (e) {
-        window.showToast(store.i18n.t('errorSavingSettings'), 'error');
-    }
-}
-
 // Feeds tab event handlers
 function handleImportOPML(event) {
     const file = event.target.files[0];
