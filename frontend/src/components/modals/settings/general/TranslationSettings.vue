@@ -53,8 +53,8 @@ defineProps<Props>();
           v-model="settings.translation_provider"
           class="input-field w-32 sm:w-48 text-xs sm:text-sm"
         >
-          <option value="google">Google Translate (Free)</option>
-          <option value="deepl">DeepL API</option>
+          <option value="google">{{ t('googleTranslate') }}</option>
+          <option value="deepl">{{ t('deeplApi') }}</option>
           <option value="baidu">{{ t('baiduTranslate') }}</option>
           <option value="ai">{{ t('aiTranslation') }}</option>
         </select>

@@ -145,6 +145,8 @@ const en: TranslationMessages = {
   enableTranslationDesc: 'Automatically translate article titles to your preferred language',
   translationProvider: 'Translation Provider',
   translationProviderDesc: 'Choose the translation service to use',
+  googleTranslate: 'Google Translate',
+  deeplApi: 'DeepL Translate',
   deeplApiKey: 'DeepL API Key',
   deeplApiKeyDesc: 'Enter your DeepL API key for translation',
   deeplApiKeyPlaceholder: 'Enter your DeepL API key',

@@ -143,6 +143,8 @@ const zh: TranslationMessages = {
   enableTranslationDesc: '自动将文章标题翻译为您的首选语言',
   translationProvider: '翻译提供商',
   translationProviderDesc: '选择要使用的翻译服务',
+  googleTranslate: '谷歌翻译',
+  deeplApi: 'DeepL 翻译',
   deeplApiKey: 'DeepL API 密钥',
   deeplApiKeyDesc: '输入您的 DeepL API 密钥用于翻译',
   deeplApiKeyPlaceholder: '输入您的 DeepL API 密钥',
