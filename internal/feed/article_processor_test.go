@@ -11,315 +11,315 @@ import (
 )
 
 func TestExtractMediaThumbnail(t *testing.T) {
-tests := []struct {
-name     string
-item     *gofeed.Item
-expected string
-}{
-{
-name: "YouTube feed with media:group structure",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"group": []ext.Extension{
-{
-Name:  "group",
-Value: "",
-Children: map[string][]ext.Extension{
-"thumbnail": {
-{
-Name:  "thumbnail",
-Value: "",
-Attrs: map[string]string{
-"url":    "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
-"width":  "480",
-"height": "360",
-},
-},
-},
-},
-},
-},
-},
-},
-},
-expected: "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
-},
-{
-name: "Direct media:thumbnail structure",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"thumbnail": []ext.Extension{
-{
-Name:  "thumbnail",
-Value: "",
-Attrs: map[string]string{
-"url": "https://example.com/thumb.jpg",
-},
-},
-},
-},
-},
-},
-expected: "https://example.com/thumb.jpg",
-},
-{
-name:     "No media extensions",
-item:     &gofeed.Item{},
-expected: "",
-},
-{
-name: "Media extensions without thumbnail",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"title": []ext.Extension{
-{
-Name:  "title",
-Value: "Some Title",
-},
-},
-},
-},
-},
-expected: "",
-},
-}
+	tests := []struct {
+		name     string
+		item     *gofeed.Item
+		expected string
+	}{
+		{
+			name: "YouTube feed with media:group structure",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"group": []ext.Extension{
+							{
+								Name:  "group",
+								Value: "",
+								Children: map[string][]ext.Extension{
+									"thumbnail": {
+										{
+											Name:  "thumbnail",
+											Value: "",
+											Attrs: map[string]string{
+												"url":    "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
+												"width":  "480",
+												"height": "360",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
+		},
+		{
+			name: "Direct media:thumbnail structure",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"thumbnail": []ext.Extension{
+							{
+								Name:  "thumbnail",
+								Value: "",
+								Attrs: map[string]string{
+									"url": "https://example.com/thumb.jpg",
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "https://example.com/thumb.jpg",
+		},
+		{
+			name:     "No media extensions",
+			item:     &gofeed.Item{},
+			expected: "",
+		},
+		{
+			name: "Media extensions without thumbnail",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"title": []ext.Extension{
+							{
+								Name:  "title",
+								Value: "Some Title",
+							},
+						},
+					},
+				},
+			},
+			expected: "",
+		},
+	}
 
-for _, tt := range tests {
-t.Run(tt.name, func(t *testing.T) {
-result := extractMediaThumbnail(tt.item)
-if result != tt.expected {
-t.Errorf("extractMediaThumbnail() = %v, want %v", result, tt.expected)
-}
-})
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractMediaThumbnail(tt.item)
+			if result != tt.expected {
+				t.Errorf("extractMediaThumbnail() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
 }
 
 func TestExtractMediaTitle(t *testing.T) {
-tests := []struct {
-name     string
-item     *gofeed.Item
-expected string
-}{
-{
-name: "YouTube feed with media:group structure",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"group": []ext.Extension{
-{
-Name:  "group",
-Value: "",
-Children: map[string][]ext.Extension{
-"title": {
-{
-Name:  "title",
-Value: "WORST Place to be a Pilot: West Papua's Extreme Bush Flying",
-},
-},
-},
-},
-},
-},
-},
-},
-expected: "WORST Place to be a Pilot: West Papua's Extreme Bush Flying",
-},
-{
-name: "Direct media:title structure",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"title": []ext.Extension{
-{
-Name:  "title",
-Value: "Direct Media Title",
-},
-},
-},
-},
-},
-expected: "Direct Media Title",
-},
-{
-name:     "No media extensions",
-item:     &gofeed.Item{},
-expected: "",
-},
-}
+	tests := []struct {
+		name     string
+		item     *gofeed.Item
+		expected string
+	}{
+		{
+			name: "YouTube feed with media:group structure",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"group": []ext.Extension{
+							{
+								Name:  "group",
+								Value: "",
+								Children: map[string][]ext.Extension{
+									"title": {
+										{
+											Name:  "title",
+											Value: "WORST Place to be a Pilot: West Papua's Extreme Bush Flying",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "WORST Place to be a Pilot: West Papua's Extreme Bush Flying",
+		},
+		{
+			name: "Direct media:title structure",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"title": []ext.Extension{
+							{
+								Name:  "title",
+								Value: "Direct Media Title",
+							},
+						},
+					},
+				},
+			},
+			expected: "Direct Media Title",
+		},
+		{
+			name:     "No media extensions",
+			item:     &gofeed.Item{},
+			expected: "",
+		},
+	}
 
-for _, tt := range tests {
-t.Run(tt.name, func(t *testing.T) {
-result := extractMediaTitle(tt.item)
-if result != tt.expected {
-t.Errorf("extractMediaTitle() = %v, want %v", result, tt.expected)
-}
-})
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractMediaTitle(tt.item)
+			if result != tt.expected {
+				t.Errorf("extractMediaTitle() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
 }
 
 func TestExtractMediaDescription(t *testing.T) {
-tests := []struct {
-name     string
-item     *gofeed.Item
-expected string
-}{
-{
-name: "YouTube feed with media:group structure",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"group": []ext.Extension{
-{
-Name:  "group",
-Value: "",
-Children: map[string][]ext.Extension{
-"description": {
-{
-Name:  "description",
-Value: "I'm joining bush pilot Matt Dearden as we fly into extreme airstrips...",
-},
-},
-},
-},
-},
-},
-},
-},
-expected: "I'm joining bush pilot Matt Dearden as we fly into extreme airstrips...",
-},
-{
-name: "Direct media:description structure",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"description": []ext.Extension{
-{
-Name:  "description",
-Value: "Direct Media Description",
-},
-},
-},
-},
-},
-expected: "Direct Media Description",
-},
-{
-name:     "No media extensions",
-item:     &gofeed.Item{},
-expected: "",
-},
-}
+	tests := []struct {
+		name     string
+		item     *gofeed.Item
+		expected string
+	}{
+		{
+			name: "YouTube feed with media:group structure",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"group": []ext.Extension{
+							{
+								Name:  "group",
+								Value: "",
+								Children: map[string][]ext.Extension{
+									"description": {
+										{
+											Name:  "description",
+											Value: "I'm joining bush pilot Matt Dearden as we fly into extreme airstrips...",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "I'm joining bush pilot Matt Dearden as we fly into extreme airstrips...",
+		},
+		{
+			name: "Direct media:description structure",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"description": []ext.Extension{
+							{
+								Name:  "description",
+								Value: "Direct Media Description",
+							},
+						},
+					},
+				},
+			},
+			expected: "Direct Media Description",
+		},
+		{
+			name:     "No media extensions",
+			item:     &gofeed.Item{},
+			expected: "",
+		},
+	}
 
-for _, tt := range tests {
-t.Run(tt.name, func(t *testing.T) {
-result := extractMediaDescription(tt.item)
-if result != tt.expected {
-t.Errorf("extractMediaDescription() = %v, want %v", result, tt.expected)
-}
-})
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractMediaDescription(tt.item)
+			if result != tt.expected {
+				t.Errorf("extractMediaDescription() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
 }
 
 func TestExtractImageURLWithMediaRSS(t *testing.T) {
-tests := []struct {
-name     string
-item     *gofeed.Item
-expected string
-}{
-{
-name: "YouTube feed with media:thumbnail",
-item: &gofeed.Item{
-Extensions: ext.Extensions{
-"media": {
-"group": []ext.Extension{
-{
-Name:  "group",
-Value: "",
-Children: map[string][]ext.Extension{
-"thumbnail": {
-{
-Name:  "thumbnail",
-Value: "",
-Attrs: map[string]string{
-"url": "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
-},
-},
-},
-},
-},
-},
-},
-},
-},
-expected: "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
-},
-{
-name: "Item with Image takes precedence",
-item: &gofeed.Item{
-Image: &gofeed.Image{
-URL: "https://example.com/item-image.jpg",
-},
-Extensions: ext.Extensions{
-"media": {
-"group": []ext.Extension{
-{
-Name:  "group",
-Value: "",
-Children: map[string][]ext.Extension{
-"thumbnail": {
-{
-Name:  "thumbnail",
-Value: "",
-Attrs: map[string]string{
-"url": "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
-},
-},
-},
-},
-},
-},
-},
-},
-},
-expected: "https://example.com/item-image.jpg",
-},
-{
-name: "Fallback to enclosure",
-item: &gofeed.Item{
-Enclosures: []*gofeed.Enclosure{
-{
-URL:  "https://example.com/enclosure-image.png",
-Type: "image/png",
-},
-},
-},
-expected: "https://example.com/enclosure-image.png",
-},
-{
-name: "Fallback to HTML img tag",
-item: &gofeed.Item{
-Description: `<p>Some text</p><img src="https://example.com/html-image.jpg" alt="test">`,
-},
-expected: "https://example.com/html-image.jpg",
-},
-{
-name:     "No image available",
-item:     &gofeed.Item{},
-expected: "",
-},
-}
+	tests := []struct {
+		name     string
+		item     *gofeed.Item
+		expected string
+	}{
+		{
+			name: "YouTube feed with media:thumbnail",
+			item: &gofeed.Item{
+				Extensions: ext.Extensions{
+					"media": {
+						"group": []ext.Extension{
+							{
+								Name:  "group",
+								Value: "",
+								Children: map[string][]ext.Extension{
+									"thumbnail": {
+										{
+											Name:  "thumbnail",
+											Value: "",
+											Attrs: map[string]string{
+												"url": "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
+		},
+		{
+			name: "Item with Image takes precedence",
+			item: &gofeed.Item{
+				Image: &gofeed.Image{
+					URL: "https://example.com/item-image.jpg",
+				},
+				Extensions: ext.Extensions{
+					"media": {
+						"group": []ext.Extension{
+							{
+								Name:  "group",
+								Value: "",
+								Children: map[string][]ext.Extension{
+									"thumbnail": {
+										{
+											Name:  "thumbnail",
+											Value: "",
+											Attrs: map[string]string{
+												"url": "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg",
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			expected: "https://example.com/item-image.jpg",
+		},
+		{
+			name: "Fallback to enclosure",
+			item: &gofeed.Item{
+				Enclosures: []*gofeed.Enclosure{
+					{
+						URL:  "https://example.com/enclosure-image.png",
+						Type: "image/png",
+					},
+				},
+			},
+			expected: "https://example.com/enclosure-image.png",
+		},
+		{
+			name: "Fallback to HTML img tag",
+			item: &gofeed.Item{
+				Description: `<p>Some text</p><img src="https://example.com/html-image.jpg" alt="test">`,
+			},
+			expected: "https://example.com/html-image.jpg",
+		},
+		{
+			name:     "No image available",
+			item:     &gofeed.Item{},
+			expected: "",
+		},
+	}
 
-for _, tt := range tests {
-t.Run(tt.name, func(t *testing.T) {
-result := extractImageURL(tt.item)
-if result != tt.expected {
-t.Errorf("extractImageURL() = %v, want %v", result, tt.expected)
-}
-})
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := extractImageURL(tt.item)
+			if result != tt.expected {
+				t.Errorf("extractImageURL() = %v, want %v", result, tt.expected)
+			}
+		})
+	}
 }
 
 func TestProcessArticlesWithYouTubeFeed(t *testing.T) {
@@ -391,34 +391,34 @@ func TestProcessArticlesWithYouTubeFeed(t *testing.T) {
 	// Process the articles
 	articles := f.processArticles(feed, items)
 
-// Verify results
-if len(articles) != 1 {
-t.Fatalf("Expected 1 article, got %d", len(articles))
-}
+	// Verify results
+	if len(articles) != 1 {
+		t.Fatalf("Expected 1 article, got %d", len(articles))
+	}
 
-article := articles[0]
+	article := articles[0]
 
-// Should use the longer media:title
-expectedTitle := "WORST Place to be a Pilot: West Papua's Extreme Bush Flying"
-if article.Title != expectedTitle {
-t.Errorf("Expected title '%s', got '%s'", expectedTitle, article.Title)
-}
+	// Should use the longer media:title
+	expectedTitle := "WORST Place to be a Pilot: West Papua's Extreme Bush Flying"
+	if article.Title != expectedTitle {
+		t.Errorf("Expected title '%s', got '%s'", expectedTitle, article.Title)
+	}
 
-// Should use media:description
-expectedContent := "I'm joining bush pilot Matt Dearden as we fly into some of the world's most extreme and unforgiving airstrips."
-if article.Content != expectedContent {
-t.Errorf("Expected content '%s', got '%s'", expectedContent, article.Content)
-}
+	// Should use media:description
+	expectedContent := "I'm joining bush pilot Matt Dearden as we fly into some of the world's most extreme and unforgiving airstrips."
+	if article.Content != expectedContent {
+		t.Errorf("Expected content '%s', got '%s'", expectedContent, article.Content)
+	}
 
-// Should extract media:thumbnail
-expectedImageURL := "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg"
-if article.ImageURL != expectedImageURL {
-t.Errorf("Expected image URL '%s', got '%s'", expectedImageURL, article.ImageURL)
-}
+	// Should extract media:thumbnail
+	expectedImageURL := "https://i4.ytimg.com/vi/KZcE7HgtFsA/hqdefault.jpg"
+	if article.ImageURL != expectedImageURL {
+		t.Errorf("Expected image URL '%s', got '%s'", expectedImageURL, article.ImageURL)
+	}
 
-// Should have correct URL
-expectedURL := "https://www.youtube.com/watch?v=KZcE7HgtFsA"
-if article.URL != expectedURL {
-t.Errorf("Expected URL '%s', got '%s'", expectedURL, article.URL)
-}
+	// Should have correct URL
+	expectedURL := "https://www.youtube.com/watch?v=KZcE7HgtFsA"
+	if article.URL != expectedURL {
+		t.Errorf("Expected URL '%s', got '%s'", expectedURL, article.URL)
+	}
 }

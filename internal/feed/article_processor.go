@@ -167,7 +167,7 @@ func extractMediaThumbnail(item *gofeed.Item) string {
 				}
 			}
 		}
-		
+
 		// Also check for direct media:thumbnail (some feeds use this)
 		if thumbnailExts, ok := mediaExt["thumbnail"]; ok && len(thumbnailExts) > 0 {
 			if url, ok := thumbnailExts[0].Attrs["url"]; ok {
@@ -193,7 +193,7 @@ func extractMediaTitle(item *gofeed.Item) string {
 				return titleExts[0].Value
 			}
 		}
-		
+
 		// Also check for direct media:title (some feeds use this)
 		if titleExts, ok := mediaExt["title"]; ok && len(titleExts) > 0 {
 			return titleExts[0].Value
@@ -217,7 +217,7 @@ func extractMediaDescription(item *gofeed.Item) string {
 				return descExts[0].Value
 			}
 		}
-		
+
 		// Also check for direct media:description (some feeds use this)
 		if descExts, ok := mediaExt["description"]; ok && len(descExts) > 0 {
 			return descExts[0].Value
