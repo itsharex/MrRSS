@@ -25,7 +25,7 @@ const scriptsDir = ref('');
 // Get unique categories from existing feeds
 const existingCategories = computed(() => {
   const categories = new Set<string>();
-  store.feeds.forEach(feed => {
+  store.feeds.forEach((feed) => {
     if (feed.category && feed.category.trim() !== '') {
       categories.add(feed.category);
     }

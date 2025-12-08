@@ -81,19 +81,19 @@ const isDragging = ref(false);
 function onProgressMouseDown(event: MouseEvent) {
   isDragging.value = true;
   seek(event);
-  
+
   const handleMouseMove = (e: MouseEvent) => {
     if (isDragging.value) {
       seek(e);
     }
   };
-  
+
   const handleMouseUp = () => {
     isDragging.value = false;
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
   };
-  
+
   document.addEventListener('mousemove', handleMouseMove);
   document.addEventListener('mouseup', handleMouseUp);
 }
@@ -158,8 +158,8 @@ const downloadFilename = computed(() => {
         <span class="text-xs text-text-secondary min-w-[40px] text-right">{{
           formatTime(currentTime)
         }}</span>
-        <div 
-          class="flex-1 h-1.5 bg-bg-tertiary rounded-full cursor-pointer relative hover:h-2 transition-all" 
+        <div
+          class="flex-1 h-1.5 bg-bg-tertiary rounded-full cursor-pointer relative hover:h-2 transition-all"
           @mousedown="onProgressMouseDown"
         >
           <div
