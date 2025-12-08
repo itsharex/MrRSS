@@ -114,9 +114,9 @@ func TestExtractContentWithPriority(t *testing.T) {
 // TestRealWorldRSSExamples tests with actual RSS feed examples from the issue
 func TestRealWorldRSSExamples(t *testing.T) {
 	tests := []struct {
-		name     string
-		item     *gofeed.Item
-		hasContent bool
+		name        string
+		item        *gofeed.Item
+		hasContent  bool
 		description string
 	}{
 		{
@@ -125,7 +125,7 @@ func TestRealWorldRSSExamples(t *testing.T) {
 				Description: "I love compilers. They make modern software possible, by taking source code humans can work with, and transforming it into code computers can actually execute.",
 				Content:     "",
 			},
-			hasContent: true,
+			hasContent:  true,
 			description: "When only description exists, it should be used as content",
 		},
 		{
@@ -134,7 +134,7 @@ func TestRealWorldRSSExamples(t *testing.T) {
 				Description: "<h2>医疗之困</h2><p>时至今日，中文社交平台上仍流传着大量关于加拿大医疗体系的吐槽...</p>",
 				Content:     "<h2>医疗之困</h2><p>时至今日，中文社交平台上仍流传着大量关于加拿大医疗体系的吐槽，核心槽点就是一个字：「慢」。各种「人没了，号还没排到」的故事广为流传...</p><p>Full article continues here...</p>",
 			},
-			hasContent: true,
+			hasContent:  true,
 			description: "When both exist, should prefer content:encoded (longer full content)",
 		},
 		{
@@ -143,7 +143,7 @@ func TestRealWorldRSSExamples(t *testing.T) {
 				Description: "<p>在真实的业务场景中，我们业务的数据——例如订单、会员、支付等——都是持久化到数据库中的...</p>",
 				Content:     "<p>在真实的业务场景中，我们业务的数据——例如订单、会员、支付等——都是持久化到数据库中的，因为数据库能有很好的事务保证、持久化保证。但是，正因为数据库要能够满足这么多优秀的功能特性...</p><h2>缓存的意义</h2><p>所谓缓存，实际上就是用空间换时间...</p>",
 			},
-			hasContent: true,
+			hasContent:  true,
 			description: "Atom feeds with <content> should extract the full content",
 		},
 	}
@@ -151,11 +151,11 @@ func TestRealWorldRSSExamples(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := ExtractContent(tt.item)
-			
+
 			if tt.hasContent && result == "" {
 				t.Errorf("ExtractContent() returned empty string, but expected content\nDescription: %s", tt.description)
 			}
-			
+
 			// When both description and content exist, should prefer content (longer)
 			if tt.item.Content != "" && tt.item.Description != "" {
 				if result == tt.item.Description && result != tt.item.Content {
