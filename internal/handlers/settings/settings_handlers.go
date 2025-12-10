@@ -210,6 +210,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Always update proxy settings as they might be cleared
+		// TODO: Consider encrypting proxy credentials before storage for enhanced security
 		h.DB.SetSetting("proxy_type", req.ProxyType)
 		h.DB.SetSetting("proxy_host", req.ProxyHost)
 		h.DB.SetSetting("proxy_port", req.ProxyPort)

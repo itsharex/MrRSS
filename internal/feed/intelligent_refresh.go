@@ -59,7 +59,8 @@ func (irc *IntelligentRefreshCalculator) calculateAverageInterval(articles []mod
 		return DefaultRefreshInterval
 	}
 
-	// Sort articles by published_at (assuming they're already sorted from DB)
+	// Note: Articles should be ordered by published_at DESC from the database query.
+	// If ordering is not guaranteed, explicit sorting should be added here.
 	// Calculate intervals between consecutive articles
 	var totalInterval time.Duration
 	validIntervals := 0
@@ -83,8 +84,7 @@ func (irc *IntelligentRefreshCalculator) calculateAverageInterval(articles []mod
 
 	avgInterval := totalInterval / time.Duration(validIntervals)
 
-	// Apply exponential moving average for smoothing
-	// This helps avoid drastic changes due to outliers
+	// Round to nearest second for cleaner intervals
 	return time.Duration(math.Round(avgInterval.Seconds())) * time.Second
 }
 

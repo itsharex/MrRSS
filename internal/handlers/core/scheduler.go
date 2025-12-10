@@ -96,21 +96,24 @@ func (h *Handler) refreshFeedsIntelligently(ctx context.Context) {
 		default:
 		}
 
+		// Create local copy to avoid loop variable capture issues
+		currentFeed := feed
+
 		// Determine refresh interval for this feed
 		var refreshInterval time.Duration
-		if feed.RefreshInterval > 0 {
+		if currentFeed.RefreshInterval > 0 {
 			// Use per-feed custom interval
-			refreshInterval = time.Duration(feed.RefreshInterval) * time.Minute
+			refreshInterval = time.Duration(currentFeed.RefreshInterval) * time.Minute
 		} else {
 			// Calculate intelligent interval
-			refreshInterval = calculator.CalculateInterval(feed)
+			refreshInterval = calculator.CalculateInterval(currentFeed)
 		}
 
 		// Check if feed needs refresh based on last_updated time
-		timeSinceUpdate := time.Since(feed.LastUpdated)
+		timeSinceUpdate := time.Since(currentFeed.LastUpdated)
 		if timeSinceUpdate >= refreshInterval {
 			// Apply staggered delay to avoid thundering herd
-			staggerDelay := h.Fetcher.GetStaggeredDelay(feed.ID, len(feeds))
+			staggerDelay := h.Fetcher.GetStaggeredDelay(currentFeed.ID, len(feeds))
 			
 			// Schedule feed refresh with stagger
 			go func(f models.Feed, delay time.Duration, interval time.Duration) {
@@ -122,7 +125,7 @@ func (h *Handler) refreshFeedsIntelligently(ctx context.Context) {
 					log.Printf("Intelligently refreshing feed %s (interval: %v)", f.Title, interval)
 					h.Fetcher.FetchSingleFeed(ctx, f)
 				}
-			}(feed, staggerDelay, refreshInterval)
+			}(currentFeed, staggerDelay, refreshInterval)
 		}
 		
 		// Small delay between checking feeds to avoid CPU spikes
