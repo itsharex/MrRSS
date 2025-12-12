@@ -24,7 +24,11 @@ func HandleGetWindowState(h *core.Handler, w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	x, _ := h.DB.GetSetting("window_x")
+	x, err := h.DB.GetSetting("window_x")
+	if err != nil {
+		http.Error(w, "Failed to get window state", http.StatusInternalServerError)
+		return
+	}
 	y, _ := h.DB.GetSetting("window_y")
 	width, _ := h.DB.GetSetting("window_width")
 	height, _ := h.DB.GetSetting("window_height")
@@ -52,12 +56,27 @@ func HandleSaveWindowState(h *core.Handler, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Convert to strings for database storage
-	h.DB.SetSetting("window_x", fmt.Sprintf("%d", state.X))
-	h.DB.SetSetting("window_y", fmt.Sprintf("%d", state.Y))
-	h.DB.SetSetting("window_width", fmt.Sprintf("%d", state.Width))
-	h.DB.SetSetting("window_height", fmt.Sprintf("%d", state.Height))
-	h.DB.SetSetting("window_maximized", fmt.Sprintf("%t", state.Maximized))
+	// Convert to strings for database storage and check for errors
+	if err := h.DB.SetSetting("window_x", fmt.Sprintf("%d", state.X)); err != nil {
+		http.Error(w, "Failed to save window state", http.StatusInternalServerError)
+		return
+	}
+	if err := h.DB.SetSetting("window_y", fmt.Sprintf("%d", state.Y)); err != nil {
+		http.Error(w, "Failed to save window state", http.StatusInternalServerError)
+		return
+	}
+	if err := h.DB.SetSetting("window_width", fmt.Sprintf("%d", state.Width)); err != nil {
+		http.Error(w, "Failed to save window state", http.StatusInternalServerError)
+		return
+	}
+	if err := h.DB.SetSetting("window_height", fmt.Sprintf("%d", state.Height)); err != nil {
+		http.Error(w, "Failed to save window state", http.StatusInternalServerError)
+		return
+	}
+	if err := h.DB.SetSetting("window_maximized", fmt.Sprintf("%t", state.Maximized)); err != nil {
+		http.Error(w, "Failed to save window state", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
