@@ -168,11 +168,10 @@ func main() {
 
 	log.Println("Starting Wails...")
 	err = wails.Run(&options.App{
-		Title:            "MrRSS",
-		Width:            1024,
-		Height:           768,
-		WindowStartState: options.Maximised,
-		LogLevel:         logger.DEBUG,
+		Title:    "MrRSS",
+		Width:    1024,
+		Height:   768,
+		LogLevel: logger.DEBUG,
 		AssetServer: &assetserver.Options{
 			Assets:  frontendFS,
 			Handler: combinedHandler,
