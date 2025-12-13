@@ -30,7 +30,7 @@ jobs:
           VERSION="${VERSION#v}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          
+
           # Check if this is a pre-release (alpha or beta)
           # Match versions like 1.2.3-alpha, 1.2.3-alpha.1, 1.2.3-beta, 1.2.3-beta.2
           if [[ "$VERSION" =~ -(alpha|beta)($|\.) ]]; then
@@ -293,24 +293,8 @@ jobs:
       - name: Strip tray dependencies for macOS build
         if: steps.check_artifacts.outputs.skip_build == 'false' && matrix.platform == 'darwin'
         run: |
-          # Remove systray-specific sources and dependency for macOS release builds
+          # Remove systray-specific sources (manager_stub.go provides no-op implementation for non-Windows/Linux platforms)
           rm -f internal/tray/manager_systray.go
-
-          # Provide a temporary darwin-only stub so the tray package still builds
-          cat > internal/tray/manager_macos_ci_stub.go <<'EOF'
-          //go:build darwin
-
-          package tray
-
-          import "context"
-
-          type Manager struct{}
-
-          func NewManager(_ interface{}, _ []byte) *Manager { return &Manager{} }
-          func (m *Manager) Start(_ context.Context, _ func(), _ func()) {}
-          func (m *Manager) Stop() {}
-          func (m *Manager) IsRunning() bool { return false }
-          EOF
 
           go mod edit -droprequire github.com/getlantern/systray
           go mod tidy
@@ -325,7 +309,7 @@ jobs:
         env:
           CGO_ENABLED: 1
         run: |
-          wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
+          wails build -clean -skipbindings -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
 
           # Verify the build
           if [ ! -f "build/bin/MrRSS" ]; then
@@ -343,7 +327,7 @@ jobs:
         env:
           CGO_ENABLED: 1
         run: |
-          wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
+          wails build -clean -skipbindings -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
 
           # Verify the build
           if (-not (Test-Path "build/bin/MrRSS.exe")) {
@@ -358,7 +342,7 @@ jobs:
         run: |
           # macOS runners can build universal binaries natively
           # Universal binaries include both Intel (amd64) and Apple Silicon (arm64)
-          wails build -clean -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
+          wails build -clean -skipbindings -ldflags "-s -w" -platform ${{ matrix.platform }}/${{ matrix.arch }}
 
       - name: Create installer (Windows)
         if: steps.check_artifacts.outputs.skip_build == 'false' && matrix.platform == 'windows'

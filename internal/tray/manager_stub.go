@@ -1,4 +1,4 @@
-//go:build !windows && !linux && !darwin
+//go:build !windows && !linux
 
 package tray
 
@@ -8,7 +8,7 @@ import (
 	"MrRSS/internal/handlers/core"
 )
 
-// Manager is a no-op implementation for unsupported platforms.
+// Manager is a no-op implementation for platforms that don't support system tray.
 type Manager struct{}
 
 func NewManager(_ *core.Handler, _ []byte) *Manager { return &Manager{} }
