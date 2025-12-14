@@ -26,7 +26,7 @@ async function loadImageGallerySetting() {
 onMounted(async () => {
   await loadScripts();
   await loadImageGallerySetting();
-  
+
   // Listen for settings changes
   window.addEventListener('image-gallery-setting-changed', (e: Event) => {
     const customEvent = e as CustomEvent;
@@ -401,7 +401,10 @@ async function openScriptsFolder() {
         <!-- Advanced Settings Section (Collapsible) -->
         <div v-if="showAdvancedSettings" class="mb-3 sm:mb-4 space-y-3 sm:space-y-4">
           <!-- Image Mode Toggle (only shown if image gallery is enabled) -->
-          <div v-if="imageGalleryEnabled" class="p-3 rounded-lg bg-bg-secondary border border-border">
+          <div
+            v-if="imageGalleryEnabled"
+            class="p-3 rounded-lg bg-bg-secondary border border-border"
+          >
             <label class="flex items-center justify-between cursor-pointer">
               <div>
                 <span class="font-semibold text-xs sm:text-sm text-text-primary">{{

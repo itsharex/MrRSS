@@ -27,7 +27,7 @@ async function loadImageGallerySetting() {
 
 onMounted(async () => {
   await loadImageGallerySetting();
-  
+
   // Listen for settings changes
   window.addEventListener('image-gallery-setting-changed', (e: Event) => {
     const customEvent = e as CustomEvent;

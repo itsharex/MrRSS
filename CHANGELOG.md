@@ -5,6 +5,22 @@ All notable changes to MrRSS will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.18] - 2025-12-14
+
+### Added
+
+- Supported image gallery for browsing all images in articles.
+- Supported network latency and bandwidth testing in settings.
+
+### Changed
+
+- Added number of concurrent feed refreshes according to network situation.
+
+### Fixed
+
+- Fixed the issue where software can open multiple instances.
+- Fixed the issue where number of feeds left to refresh is not accurately displayed during feed refresh.
+
 ## [1.2.17] - 2025-12-13
 
 ### Added

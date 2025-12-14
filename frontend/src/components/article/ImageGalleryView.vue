@@ -22,7 +22,6 @@ const emit = defineEmits<{
 // Constants
 const ITEMS_PER_PAGE = 50;
 const SCROLL_THRESHOLD_PX = 500; // Start loading more items when user is 500px from bottom
-const COLUMN_GAP = 16; // px
 
 const articles = ref<Article[]>([]);
 const isLoading = ref(false);
@@ -57,7 +56,7 @@ async function fetchImages(loadMore = false) {
     const res = await fetch(url);
     if (res.ok) {
       const newArticles = await res.json();
-      
+
       if (loadMore) {
         articles.value = [...articles.value, ...newArticles];
       } else {
@@ -77,15 +76,15 @@ async function fetchImages(loadMore = false) {
 function calculateColumns() {
   if (!containerRef.value) return;
   const width = containerRef.value.offsetWidth;
-  
+
   // Target column width: 250px for optimal image viewing
   // Minimum 2 columns, no maximum
   const targetColumnWidth = 250;
   const calculatedColumns = Math.floor(width / targetColumnWidth);
-  
+
   // Ensure at least 2 columns
   columnCount.value = Math.max(2, calculatedColumns);
-  
+
   // Rearrange columns after calculating new count
   arrangeColumns();
 }
@@ -123,7 +122,11 @@ function handleScroll() {
   const windowHeight = window.innerHeight;
   const documentHeight = document.documentElement.scrollHeight;
 
-  if (scrollTop + windowHeight >= documentHeight - SCROLL_THRESHOLD_PX && !isLoading.value && hasMore.value) {
+  if (
+    scrollTop + windowHeight >= documentHeight - SCROLL_THRESHOLD_PX &&
+    !isLoading.value &&
+    hasMore.value
+  ) {
     page.value++;
     fetchImages(true);
   }
@@ -148,7 +151,7 @@ async function toggleFavorite(article: Article, event: Event) {
 function openImage(article: Article) {
   selectedArticle.value = article;
   showImageViewer.value = true;
-  
+
   // Mark as read
   if (!article.is_read) {
     markAsRead(article);
@@ -258,7 +261,7 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll);
   window.addEventListener('resize', calculateColumns);
   window.addEventListener('click', closeContextMenu);
-  
+
   nextTick(() => {
     calculateColumns(); // This now also calls arrangeColumns()
   });
@@ -275,11 +278,7 @@ onUnmounted(() => {
   <div class="image-gallery-container">
     <!-- Header -->
     <div class="gallery-header">
-      <button
-        class="menu-btn md:hidden"
-        @click="emit('toggleSidebar')"
-        :title="t('toggleSidebar')"
-      >
+      <button class="menu-btn md:hidden" :title="t('toggleSidebar')" @click="emit('toggleSidebar')">
         <PhList :size="24" />
       </button>
       <div class="flex items-center gap-2">
@@ -290,11 +289,7 @@ onUnmounted(() => {
 
     <!-- Masonry Grid -->
     <div v-if="articles.length > 0" ref="containerRef" class="masonry-container">
-      <div
-        v-for="(column, colIndex) in columns"
-        :key="colIndex"
-        class="masonry-column"
-      >
+      <div v-for="(column, colIndex) in columns" :key="colIndex" class="masonry-column">
         <div
           v-for="article in column"
           :key="article.id"
@@ -310,10 +305,7 @@ onUnmounted(() => {
               loading="lazy"
             />
             <div class="image-overlay">
-              <button
-                class="favorite-btn"
-                @click="toggleFavorite(article, $event)"
-              >
+              <button class="favorite-btn" @click="toggleFavorite(article, $event)">
                 <PhHeart
                   :size="20"
                   :weight="article.is_favorite ? 'fill' : 'regular'"
@@ -352,11 +344,7 @@ onUnmounted(() => {
     >
       <div class="image-viewer-content" @click.stop>
         <button class="close-btn" @click="closeImageViewer">×</button>
-        <img
-          :src="selectedArticle.image_url"
-          :alt="selectedArticle.title"
-          class="viewer-image"
-        />
+        <img :src="selectedArticle.image_url" :alt="selectedArticle.title" class="viewer-image" />
         <div class="viewer-info">
           <h2 class="viewer-title">{{ selectedArticle.title }}</h2>
           <div class="viewer-meta">
@@ -382,17 +370,11 @@ onUnmounted(() => {
       :style="{ top: contextMenu.y + 'px', left: contextMenu.x + 'px' }"
       @click.stop
     >
-      <button
-        class="context-menu-item"
-        @click="downloadImage(contextMenu.article)"
-      >
+      <button class="context-menu-item" @click="downloadImage(contextMenu.article)">
         <PhFloppyDisk :size="16" />
         <span>{{ t('downloadImage') }}</span>
       </button>
-      <button
-        class="context-menu-item"
-        @click="openOriginal(contextMenu.article)"
-      >
+      <button class="context-menu-item" @click="openOriginal(contextMenu.article)">
         <PhGlobe :size="16" />
         <span>{{ t('openInBrowser') }}</span>
       </button>
