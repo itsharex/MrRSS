@@ -530,6 +530,26 @@ const zh: TranslationMessages = {
   advancedSettings: '高级设置',
   showAdvancedSettings: '显示高级设置',
   hideAdvancedSettings: '隐藏高级设置',
+
+  // Network Settings
+  networkSettings: '网络设置',
+  networkSettingsDescription: '自动检测网络速度以优化并行刷新订阅源的性能',
+  networkSpeed: '网络速度',
+  networkSpeed_slow: '慢速',
+  networkSpeed_medium: '中速',
+  networkSpeed_fast: '快速',
+  bandwidth: '带宽',
+  latency: '延迟',
+  maxConcurrentRefreshes: '最大并发刷新数',
+  lastDetection: '上次检测',
+  reDetectNetwork: '重新检测网络',
+  detecting: '检测中...',
+  networkDetectionComplete: '网络检测完成',
+  networkDetectionFailed: '网络检测失败',
+  justNow: '刚刚',
+  minutesAgo: '{count} 分钟前',
+  hoursAgo: '{count} 小时前',
+  daysAgo: '{count} 天前',
 };
 
 export default zh;

@@ -420,6 +420,26 @@ export interface TranslationMessages {
   advancedSettings: string;
   showAdvancedSettings: string;
   hideAdvancedSettings: string;
+
+  // Network Settings
+  networkSettings: string;
+  networkSettingsDescription: string;
+  networkSpeed: string;
+  networkSpeed_slow: string;
+  networkSpeed_medium: string;
+  networkSpeed_fast: string;
+  bandwidth: string;
+  latency: string;
+  maxConcurrentRefreshes: string;
+  lastDetection: string;
+  reDetectNetwork: string;
+  detecting: string;
+  networkDetectionComplete: string;
+  networkDetectionFailed: string;
+  justNow: string;
+  minutesAgo: string;
+  hoursAgo: string;
+  daysAgo: string;
 }
 
 export type SupportedLocale = 'en-US' | 'zh-CN';

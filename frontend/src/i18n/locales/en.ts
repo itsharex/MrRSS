@@ -536,6 +536,27 @@ const en: TranslationMessages = {
   advancedSettings: 'Advanced Settings',
   showAdvancedSettings: 'Show Advanced Settings',
   hideAdvancedSettings: 'Hide Advanced Settings',
+
+  // Network Settings
+  networkSettings: 'Network Settings',
+  networkSettingsDescription:
+    'Automatic network speed detection to optimize parallel feed refresh performance',
+  networkSpeed: 'Network Speed',
+  networkSpeed_slow: 'Slow',
+  networkSpeed_medium: 'Medium',
+  networkSpeed_fast: 'Fast',
+  bandwidth: 'Bandwidth',
+  latency: 'Latency',
+  maxConcurrentRefreshes: 'Max Concurrent Refreshes',
+  lastDetection: 'Last Detection',
+  reDetectNetwork: 'Re-detect Network',
+  detecting: 'Detecting...',
+  networkDetectionComplete: 'Network detection complete',
+  networkDetectionFailed: 'Network detection failed',
+  justNow: 'Just now',
+  minutesAgo: '{count} minute ago | {count} minutes ago',
+  hoursAgo: '{count} hour ago | {count} hours ago',
+  daysAgo: '{count} day ago | {count} days ago',
 };
 
 export default en;

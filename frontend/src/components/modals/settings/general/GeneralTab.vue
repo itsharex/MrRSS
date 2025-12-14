@@ -8,6 +8,7 @@ import { PhWarning } from '@phosphor-icons/vue';
 import AppearanceSettings from './AppearanceSettings.vue';
 import UpdateSettings from './UpdateSettings.vue';
 import ProxySettings from './ProxySettings.vue';
+import NetworkSettings from './NetworkSettings.vue';
 import DatabaseSettings from './DatabaseSettings.vue';
 import TranslationSettings from './TranslationSettings.vue';
 import SummarySettings from './SummarySettings.vue';
@@ -72,6 +73,8 @@ function handleUpdateSettings(updatedSettings: SettingsData) {
     <AppearanceSettings :settings="settings" @update:settings="handleUpdateSettings" />
 
     <UpdateSettings :settings="settings" @update:settings="handleUpdateSettings" />
+
+    <NetworkSettings />
 
     <ProxySettings :settings="settings" @update:settings="handleUpdateSettings" />
 
