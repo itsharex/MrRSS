@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed the issue where some settings were not saved and applied correctly.
+- Fixed the issue where macOS application failing to launch after installation。
 
 ## [1.2.18] - 2025-12-14
 
