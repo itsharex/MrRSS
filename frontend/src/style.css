@@ -76,8 +76,21 @@ textarea,
 
 /* Allow image interactions (click, right-click context menu) in article content */
 .prose-content img {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Ensure parent elements of images don't block pointer events */
+.prose-content figure,
+.prose-content picture,
+.prose-content a,
+.prose-content div {
   pointer-events: auto;
-  cursor: pointer;
+}
+
+/* Ensure images in any nested structure can be clicked */
+.prose img {
+  pointer-events: auto !important;
 }
 
 /* Custom Scrollbar */
