@@ -25,6 +25,7 @@
   "summary_enabled": true,
   "summary_length": "medium",
   "summary_provider": "local",
+  "summary_trigger_mode": "manual",
   "auto_cleanup_enabled": false,
   "max_cache_size_mb": 20,
   "max_article_age_days": 30,

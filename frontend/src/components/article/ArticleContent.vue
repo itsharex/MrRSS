@@ -55,6 +55,8 @@ const { enhanceRendering, renderMathFormulas, highlightCodeBlocks } = useArticle
 
 // Computed properties for easier access
 const summaryEnabled = computed(() => summarySettings.value.enabled);
+const summaryProvider = computed(() => summarySettings.value.provider);
+const summaryTriggerMode = computed(() => summarySettings.value.triggerMode);
 const translationEnabled = computed(() => translationSettings.value.enabled);
 const targetLanguage = computed(() => translationSettings.value.targetLang);
 
@@ -126,6 +128,21 @@ async function generateSummary(article: Article) {
     translatedSummary.value = await translateText(result.summary);
     isTranslatingSummary.value = false;
   }
+}
+
+// Check if should auto-generate summary
+function shouldAutoGenerateSummary(): boolean {
+  if (!summaryEnabled.value) return false;
+
+  // For local provider, always auto-generate
+  if (summaryProvider.value === 'local') return true;
+
+  // For AI provider, check trigger mode
+  if (summaryProvider.value === 'ai') {
+    return summaryTriggerMode.value === 'auto';
+  }
+
+  return false;
 }
 
 // Translate title
@@ -311,7 +328,7 @@ watch(
       lastTranslatedArticleId.value = null; // Reset translation tracking
 
       if (props.article) {
-        if (summaryEnabled.value) {
+        if (shouldAutoGenerateSummary()) {
           // Delay summary generation when switching articles
           setTimeout(() => generateSummary(props.article), 100);
         }
@@ -336,7 +353,7 @@ watch(
       await reattachImageInteractions();
 
       // Delay summary generation to prioritize content display
-      if (summaryEnabled.value) {
+      if (shouldAutoGenerateSummary()) {
         setTimeout(() => generateSummary(props.article), 100);
       }
       if (translationEnabled.value && lastTranslatedArticleId.value !== props.article.id) {
@@ -358,7 +375,7 @@ onMounted(async () => {
       await reattachImageInteractions();
     }
 
-    if (summaryEnabled.value && props.articleContent) {
+    if (shouldAutoGenerateSummary() && props.articleContent) {
       // Delay summary generation to ensure content displays first
       setTimeout(() => generateSummary(props.article), 100);
     }
@@ -419,6 +436,9 @@ watch(
         :translated-summary="translatedSummary"
         :is-translating-summary="isTranslatingSummary"
         :translation-enabled="translationEnabled"
+        :summary-provider="summaryProvider"
+        :summary-trigger-mode="summaryTriggerMode"
+        @generate-summary="generateSummary(props.article)"
       />
 
       <ArticleLoading v-if="isLoadingContent" />

@@ -48,6 +48,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 		summaryEnabled, _ := h.DB.GetSetting("summary_enabled")
 		summaryLength, _ := h.DB.GetSetting("summary_length")
 		summaryProvider, _ := h.DB.GetSetting("summary_provider")
+		summaryTriggerMode, _ := h.DB.GetSetting("summary_trigger_mode")
 		proxyEnabled, _ := h.DB.GetSetting("proxy_enabled")
 		proxyType, _ := h.DB.GetSetting("proxy_type")
 		proxyHost, _ := h.DB.GetSetting("proxy_host")
@@ -102,6 +103,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			"summary_enabled":             summaryEnabled,
 			"summary_length":              summaryLength,
 			"summary_provider":            summaryProvider,
+			"summary_trigger_mode":        summaryTriggerMode,
 			"proxy_enabled":               proxyEnabled,
 			"proxy_type":                  proxyType,
 			"proxy_host":                  proxyHost,
@@ -157,6 +159,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			SummaryEnabled           string `json:"summary_enabled"`
 			SummaryLength            string `json:"summary_length"`
 			SummaryProvider          string `json:"summary_provider"`
+			SummaryTriggerMode       string `json:"summary_trigger_mode"`
 			ProxyEnabled             string `json:"proxy_enabled"`
 			ProxyType                string `json:"proxy_type"`
 			ProxyHost                string `json:"proxy_host"`
@@ -287,6 +290,10 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 
 		if req.SummaryProvider != "" {
 			h.DB.SetSetting("summary_provider", req.SummaryProvider)
+		}
+
+		if req.SummaryTriggerMode != "" {
+			h.DB.SetSetting("summary_trigger_mode", req.SummaryTriggerMode)
 		}
 
 		// AI summary prompt is now handled by common AI settings (ai_summary_prompt)

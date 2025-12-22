@@ -40,6 +40,7 @@ type Defaults struct {
 	SummaryEnabled           bool   `json:"summary_enabled"`
 	SummaryLength            string `json:"summary_length"`
 	SummaryProvider          string `json:"summary_provider"`
+	SummaryTriggerMode       string `json:"summary_trigger_mode"`
 	AutoCleanupEnabled       bool   `json:"auto_cleanup_enabled"`
 	MaxCacheSizeMB           int    `json:"max_cache_size_mb"`
 	MaxArticleAgeDays        int    `json:"max_article_age_days"`
@@ -137,6 +138,8 @@ func GetString(key string) string {
 		return defaults.SummaryLength
 	case "summary_provider":
 		return defaults.SummaryProvider
+	case "summary_trigger_mode":
+		return defaults.SummaryTriggerMode
 	case "auto_cleanup_enabled":
 		return strconv.FormatBool(defaults.AutoCleanupEnabled)
 	case "max_cache_size_mb":

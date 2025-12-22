@@ -38,6 +38,7 @@ export interface SettingsData {
   summary_enabled: boolean;
   summary_length: string;
   summary_provider: string;
+  summary_trigger_mode: string;
   proxy_enabled: boolean;
   proxy_type: string;
   proxy_host: string;

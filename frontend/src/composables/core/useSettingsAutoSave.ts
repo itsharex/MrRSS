@@ -153,6 +153,8 @@ export function useSettingsAutoSave(settings: Ref<SettingsData> | (() => Setting
           ).toString(),
           summary_length: settingsRef.value.summary_length ?? settingsDefaults.summary_length,
           summary_provider: settingsRef.value.summary_provider ?? settingsDefaults.summary_provider,
+          summary_trigger_mode:
+            settingsRef.value.summary_trigger_mode ?? settingsDefaults.summary_trigger_mode,
           proxy_enabled: (
             settingsRef.value.proxy_enabled ?? settingsDefaults.proxy_enabled
           ).toString(),

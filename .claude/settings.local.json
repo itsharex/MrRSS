@@ -9,7 +9,8 @@
       "Bash(task dev)",
       "Bash(timeout:*)",
       "Bash(curl:*)",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(npm run lint)"
     ]
   }
 }

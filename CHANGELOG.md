@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- AI summarization is now triggered manually on default to avoid excessive API usage. Users can enable automatic summarization in settings if desired. (#258)
+
 ## [1.3.6] - 2025-12-22
 
 ### Added

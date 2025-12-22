@@ -37,6 +37,7 @@ export function useSettings() {
     summary_enabled: settingsDefaults.summary_enabled,
     summary_length: settingsDefaults.summary_length,
     summary_provider: settingsDefaults.summary_provider,
+    summary_trigger_mode: settingsDefaults.summary_trigger_mode,
     baidu_app_id: settingsDefaults.baidu_app_id,
     baidu_secret_key: settingsDefaults.baidu_secret_key,
     ai_api_key: settingsDefaults.ai_api_key,
@@ -105,6 +106,7 @@ export function useSettings() {
         summary_enabled: data.summary_enabled === 'true',
         summary_length: data.summary_length || settingsDefaults.summary_length,
         summary_provider: data.summary_provider || settingsDefaults.summary_provider,
+        summary_trigger_mode: data.summary_trigger_mode || settingsDefaults.summary_trigger_mode,
         baidu_app_id: data.baidu_app_id || settingsDefaults.baidu_app_id,
         baidu_secret_key: data.baidu_secret_key || settingsDefaults.baidu_secret_key,
         ai_api_key: data.ai_api_key || settingsDefaults.ai_api_key,
@@ -148,7 +150,7 @@ export function useSettings() {
    * Apply fetched settings to the app
    */
 
-  function applySettings(data: SettingsData, setTheme: (ThemePreference) => void) {
+  function applySettings(data: SettingsData, setTheme: (preference: ThemePreference) => void) {
     // Apply the saved language
     if (data.language) {
       locale.value = data.language;
