@@ -51,7 +51,8 @@ func GetDataDir() (string, error) {
 
 	// Check if server mode is enabled - this takes precedence
 	if IsServerMode() {
-		return os.Getwd()
+		// In server mode, use /app/data directory (mounted volume)
+		return "/app/data", nil
 	}
 
 	// Check if portable mode is enabled

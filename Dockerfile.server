@@ -4,8 +4,8 @@
 # Build stage
 FROM golang:1.24-alpine AS builder
 
-# Install git and Node.js (needed for frontend build)
-RUN apk add --no-cache git nodejs npm
+# Install git, Node.js, and build tools (needed for frontend build and CGO)
+RUN apk add --no-cache git nodejs npm gcc musl-dev pkgconfig
 
 # Set working directory
 WORKDIR /app
@@ -23,7 +23,7 @@ COPY . .
 RUN cd frontend && npm install && npm run build
 
 # Build the server version
-RUN CGO_ENABLED=0 GOOS=linux go build -tags server -trimpath -buildvcs=false -ldflags="-w -s" -o mrrss-server ./main-core.go
+RUN CGO_ENABLED=1 GOOS=linux go build -tags server -trimpath -buildvcs=false -ldflags="-w -s" -o mrrss-server ./main-core.go
 
 # Runtime stage - minimal alpine image
 FROM alpine:latest
@@ -34,8 +34,8 @@ RUN apk --no-cache add ca-certificates
 # Create a non-root user
 RUN adduser -D -s /bin/sh mrrss
 
-# Create data directory
-RUN mkdir -p /app/data && chown mrrss:mrrss /app/data
+# Create data directory with proper permissions
+RUN mkdir -p /app/data && chown -R mrrss:mrrss /app/data
 
 # Set working directory
 WORKDIR /app

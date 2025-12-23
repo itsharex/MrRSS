@@ -1,3 +1,5 @@
+//go:build !server
+
 // Package browser provides HTTP handlers for browser-related operations using Wails v3 Browser API.
 package browser
 
