@@ -50,6 +50,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 		mediaCacheEnabled, _ := h.DB.GetSetting("media_cache_enabled")
 		mediaCacheMaxAgeDays, _ := h.DB.GetSetting("media_cache_max_age_days")
 		mediaCacheMaxSizeMb, _ := h.DB.GetSetting("media_cache_max_size_mb")
+		mediaProxyFallback, _ := h.DB.GetSetting("media_proxy_fallback")
 		networkBandwidthMbps, _ := h.DB.GetSetting("network_bandwidth_mbps")
 		networkLatencyMs, _ := h.DB.GetSetting("network_latency_ms")
 		networkSpeed, _ := h.DB.GetSetting("network_speed")
@@ -120,6 +121,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			"media_cache_enabled":         mediaCacheEnabled,
 			"media_cache_max_age_days":    mediaCacheMaxAgeDays,
 			"media_cache_max_size_mb":     mediaCacheMaxSizeMb,
+			"media_proxy_fallback":        mediaProxyFallback,
 			"network_bandwidth_mbps":      networkBandwidthMbps,
 			"network_latency_ms":          networkLatencyMs,
 			"network_speed":               networkSpeed,
@@ -192,6 +194,7 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			MediaCacheEnabled        string `json:"media_cache_enabled"`
 			MediaCacheMaxAgeDays     string `json:"media_cache_max_age_days"`
 			MediaCacheMaxSizeMb      string `json:"media_cache_max_size_mb"`
+			MediaProxyFallback       string `json:"media_proxy_fallback"`
 			NetworkBandwidthMbps     string `json:"network_bandwidth_mbps"`
 			NetworkLatencyMs         string `json:"network_latency_ms"`
 			NetworkSpeed             string `json:"network_speed"`
@@ -380,6 +383,10 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 
 		if req.MediaCacheMaxSizeMb != "" {
 			h.DB.SetSetting("media_cache_max_size_mb", req.MediaCacheMaxSizeMb)
+		}
+
+		if req.MediaProxyFallback != "" {
+			h.DB.SetSetting("media_proxy_fallback", req.MediaProxyFallback)
 		}
 
 		if req.NetworkBandwidthMbps != "" {

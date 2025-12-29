@@ -54,6 +54,7 @@ type Defaults struct {
 	MediaCacheEnabled        bool   `json:"media_cache_enabled"`
 	MediaCacheMaxAgeDays     int    `json:"media_cache_max_age_days"`
 	MediaCacheMaxSizeMb      int    `json:"media_cache_max_size_mb"`
+	MediaProxyFallback       bool   `json:"media_proxy_fallback"`
 	NetworkBandwidthMbps     string `json:"network_bandwidth_mbps"`
 	NetworkLatencyMs         string `json:"network_latency_ms"`
 	NetworkSpeed             string `json:"network_speed"`
@@ -177,6 +178,8 @@ func GetString(key string) string {
 		return strconv.Itoa(defaults.MediaCacheMaxAgeDays)
 	case "media_cache_max_size_mb":
 		return strconv.Itoa(defaults.MediaCacheMaxSizeMb)
+	case "media_proxy_fallback":
+		return strconv.FormatBool(defaults.MediaProxyFallback)
 	case "network_bandwidth_mbps":
 		return defaults.NetworkBandwidthMbps
 	case "network_latency_ms":

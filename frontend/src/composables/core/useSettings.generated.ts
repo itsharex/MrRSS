@@ -49,6 +49,7 @@ export function generateInitialSettings(): SettingsData {
     media_cache_enabled: settingsDefaults.media_cache_enabled,
     media_cache_max_age_days: settingsDefaults.media_cache_max_age_days,
     media_cache_max_size_mb: settingsDefaults.media_cache_max_size_mb,
+    media_proxy_fallback: settingsDefaults.media_proxy_fallback,
     network_bandwidth_mbps: settingsDefaults.network_bandwidth_mbps,
     network_latency_ms: settingsDefaults.network_latency_ms,
     network_speed: settingsDefaults.network_speed,
@@ -132,6 +133,7 @@ export function parseSettingsData(data: Record<string, string>): SettingsData {
       parseInt(data.media_cache_max_age_days) || settingsDefaults.media_cache_max_age_days,
     media_cache_max_size_mb:
       parseInt(data.media_cache_max_size_mb) || settingsDefaults.media_cache_max_size_mb,
+    media_proxy_fallback: data.media_proxy_fallback === 'true',
     network_bandwidth_mbps: data.network_bandwidth_mbps || settingsDefaults.network_bandwidth_mbps,
     network_latency_ms: data.network_latency_ms || settingsDefaults.network_latency_ms,
     network_speed: data.network_speed || settingsDefaults.network_speed,
@@ -237,6 +239,9 @@ export function buildAutoSavePayload(settingsRef: Ref<SettingsData>): Record<str
     ).toString(),
     media_cache_max_size_mb: (
       settingsRef.value.media_cache_max_size_mb ?? settingsDefaults.media_cache_max_size_mb
+    ).toString(),
+    media_proxy_fallback: (
+      settingsRef.value.media_proxy_fallback ?? settingsDefaults.media_proxy_fallback
     ).toString(),
     network_bandwidth_mbps:
       settingsRef.value.network_bandwidth_mbps ?? settingsDefaults.network_bandwidth_mbps,

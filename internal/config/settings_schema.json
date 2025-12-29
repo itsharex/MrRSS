@@ -235,6 +235,13 @@
       "encrypted": false,
       "frontend_key": "mediaCacheEnabled"
     },
+    "media_proxy_fallback": {
+      "type": "bool",
+      "default": true,
+      "category": "storage",
+      "encrypted": false,
+      "frontend_key": "mediaProxyFallback"
+    },
     "media_cache_max_size_mb": {
       "type": "int",
       "default": 200,
