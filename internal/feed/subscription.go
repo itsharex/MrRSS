@@ -221,6 +221,113 @@ func (f *Fetcher) AddScriptSubscription(scriptPath string, category string, cust
 // AddXPathSubscription adds a new feed subscription that uses XPath expressions
 // and returns the feed ID.
 func (f *Fetcher) AddXPathSubscription(url string, category string, customTitle string, feedType string, xpathItem string, xpathItemTitle string, xpathItemContent string, xpathItemUri string, xpathItemAuthor string, xpathItemTimestamp string, xpathItemTimeFormat string, xpathItemThumbnail string, xpathItemCategories string, xpathItemUid string) (int64, error) {
+	// Validate URL
+	if url == "" {
+		return 0, &XPathError{
+			Operation: "validate",
+			Details:   "URL cannot be empty",
+		}
+	}
+
+	// Validate feed type
+	if feedType != "HTML+XPath" && feedType != "XML+XPath" {
+		return 0, &XPathError{
+			Operation: "validate",
+			Details:   fmt.Sprintf("Invalid feed type '%s'. Must be 'HTML+XPath' or 'XML+XPath'", feedType),
+		}
+	}
+
+	// Validate required XPath item expression
+	if xpathItem == "" {
+		return 0, &XPathError{
+			Operation: "validate",
+			Details:   "Item XPath expression is required",
+		}
+	}
+
+	// Test fetch the URL to ensure it's accessible before adding
+	httpClient, err := utils.CreateHTTPClient("", 30*time.Second)
+	if err != nil {
+		return 0, &XPathError{
+			Operation: "fetch",
+			URL:       url,
+			Details:   "Failed to create HTTP client",
+			Err:       err,
+		}
+	}
+
+	resp, err := httpClient.Get(url)
+	if err != nil {
+		return 0, &XPathError{
+			Operation: "fetch",
+			URL:       url,
+			Details:   "Failed to fetch content. Please check the URL and your network connection",
+			Err:       err,
+		}
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return 0, &XPathError{
+			Operation: "fetch",
+			URL:       url,
+			Details:   fmt.Sprintf("HTTP error %d: %s. The URL may be invalid or the server may be unreachable", resp.StatusCode, resp.Status),
+		}
+	}
+
+	// Try to parse the content to ensure XPath expressions work
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, &XPathError{
+			Operation: "fetch",
+			URL:       url,
+			Details:   "Failed to read response body",
+			Err:       err,
+		}
+	}
+
+	// Test parsing based on feed type
+	if feedType == "HTML+XPath" {
+		doc, err := htmlquery.Parse(strings.NewReader(string(body)))
+		if err != nil {
+			return 0, &XPathError{
+				Operation: "parse",
+				URL:       url,
+				Details:   "Failed to parse HTML. The page may have invalid HTML or may not be HTML content",
+				Err:       err,
+			}
+		}
+		items := htmlquery.Find(doc, xpathItem)
+		if len(items) == 0 {
+			return 0, &XPathError{
+				Operation: "extract",
+				URL:       url,
+				XPathExpr: xpathItem,
+				Details:   "No items found. The Item XPath expression doesn't match any elements. Please check the XPath expression and the page structure",
+			}
+		}
+	} else if feedType == "XML+XPath" {
+		doc, err := xmlquery.Parse(strings.NewReader(string(body)))
+		if err != nil {
+			return 0, &XPathError{
+				Operation: "parse",
+				URL:       url,
+				Details:   "Failed to parse XML. The content may not be valid XML",
+				Err:       err,
+			}
+		}
+		items := xmlquery.Find(doc, xpathItem)
+		if len(items) == 0 {
+			return 0, &XPathError{
+				Operation: "extract",
+				URL:       url,
+				XPathExpr: xpathItem,
+				Details:   "No items found. The Item XPath expression doesn't match any elements. Please check the XPath expression and the XML structure",
+			}
+		}
+	}
+
+	// All validations passed, create the feed
 	title := customTitle
 	if title == "" {
 		title = "XPath Feed"
@@ -398,27 +505,49 @@ func (f *Fetcher) parseFeedWithFeedInternal(ctx context.Context, feed *models.Fe
 // parseFeedWithXPath parses a feed using XPath expressions
 func (f *Fetcher) parseFeedWithXPath(_ context.Context, feed *models.Feed) (*gofeed.Feed, error) {
 	if feed.XPathItem == "" {
-		return nil, fmt.Errorf("XPath item expression is required for XPath-based feeds")
+		return nil, &XPathError{
+			Operation: "validate",
+			Details:   "XPath item expression is required for XPath-based feeds",
+		}
 	}
 
 	// Fetch the content
 	httpClient, err := utils.CreateHTTPClient("", 30*time.Second)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create HTTP client: %w", err)
+		return nil, &XPathError{
+			Operation: "fetch",
+			URL:       feed.URL,
+			Details:   "Failed to create HTTP client",
+			Err:       err,
+		}
 	}
 	resp, err := httpClient.Get(feed.URL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch content: %w", err)
+		return nil, &XPathError{
+			Operation: "fetch",
+			URL:       feed.URL,
+			Details:   "Failed to fetch content. Please check the URL and your network connection",
+			Err:       err,
+		}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
+		return nil, &XPathError{
+			Operation: "fetch",
+			URL:       feed.URL,
+			Details:   fmt.Sprintf("HTTP %d: %s. The server may be unreachable or the page may have moved", resp.StatusCode, resp.Status),
+		}
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+		return nil, &XPathError{
+			Operation: "fetch",
+			URL:       feed.URL,
+			Details:   "Failed to read response body",
+			Err:       err,
+		}
 	}
 
 	// Create gofeed.Feed
@@ -434,11 +563,21 @@ func (f *Fetcher) parseFeedWithXPath(_ context.Context, feed *models.Feed) (*gof
 	case "HTML+XPath":
 		doc, err := htmlquery.Parse(strings.NewReader(string(body)))
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse HTML: %w", err)
+			return nil, &XPathError{
+				Operation: "parse",
+				URL:       feed.URL,
+				Details:   "Failed to parse HTML. The page structure may have changed or the content may not be valid HTML",
+				Err:       err,
+			}
 		}
 		items := htmlquery.Find(doc, feed.XPathItem)
 		if len(items) == 0 {
-			return nil, fmt.Errorf("no items found with XPath: %s", feed.XPathItem)
+			return nil, &XPathError{
+				Operation: "extract",
+				URL:       feed.URL,
+				XPathExpr: feed.XPathItem,
+				Details:   "No items found. The Item XPath expression doesn't match any elements on the page. The page structure may have changed",
+			}
 		}
 
 		// Process HTML items
@@ -449,11 +588,21 @@ func (f *Fetcher) parseFeedWithXPath(_ context.Context, feed *models.Feed) (*gof
 	case "XML+XPath":
 		doc, err := xmlquery.Parse(strings.NewReader(string(body)))
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse XML: %w", err)
+			return nil, &XPathError{
+				Operation: "parse",
+				URL:       feed.URL,
+				Details:   "Failed to parse XML. The content may not be valid XML",
+				Err:       err,
+			}
 		}
 		items := xmlquery.Find(doc, feed.XPathItem)
 		if len(items) == 0 {
-			return nil, fmt.Errorf("no items found with XPath: %s", feed.XPathItem)
+			return nil, &XPathError{
+				Operation: "extract",
+				URL:       feed.URL,
+				XPathExpr: feed.XPathItem,
+				Details:   "No items found. The Item XPath expression doesn't match any elements in the XML. The structure may have changed",
+			}
 		}
 
 		// Process XML items
@@ -462,7 +611,10 @@ func (f *Fetcher) parseFeedWithXPath(_ context.Context, feed *models.Feed) (*gof
 			parsedFeed.Items = append(parsedFeed.Items, gofeedItem)
 		}
 	default:
-		return nil, fmt.Errorf("unsupported feed type: %s", feed.Type)
+		return nil, &XPathError{
+			Operation: "validate",
+			Details:   fmt.Sprintf("Unsupported feed type '%s'. Must be 'HTML+XPath' or 'XML+XPath'", feed.Type),
+		}
 	}
 
 	return parsedFeed, nil
@@ -840,6 +992,44 @@ type ScriptError struct {
 
 func (e *ScriptError) Error() string {
 	return e.Message
+}
+
+// XPathError represents an error related to XPath feed operations
+type XPathError struct {
+	Operation string // "validate", "fetch", "parse", "extract"
+	URL       string
+	XPathExpr string
+	Details   string // Detailed error message
+	Err       error  // Underlying error
+}
+
+func (e *XPathError) Error() string {
+	var msg string
+	switch e.Operation {
+	case "validate":
+		msg = fmt.Sprintf("XPath validation failed for '%s': %s", e.XPathExpr, e.Details)
+	case "fetch":
+		msg = fmt.Sprintf("Failed to fetch content from %s: %s", e.URL, e.Details)
+	case "parse":
+		if e.XPathExpr != "" {
+			msg = fmt.Sprintf("Failed to parse %s with XPath '%s': %s", e.URL, e.XPathExpr, e.Details)
+		} else {
+			msg = fmt.Sprintf("Failed to parse %s: %s", e.URL, e.Details)
+		}
+	case "extract":
+		msg = fmt.Sprintf("Failed to extract data with XPath '%s': %s", e.XPathExpr, e.Details)
+	default:
+		msg = fmt.Sprintf("XPath error: %s", e.Details)
+	}
+
+	if e.Err != nil {
+		msg += fmt.Sprintf(" (%v)", e.Err)
+	}
+	return msg
+}
+
+func (e *XPathError) Unwrap() error {
+	return e.Err
 }
 
 // parseFeedWithJavaScript executes JavaScript in the browser and attempts to parse the resulting XML

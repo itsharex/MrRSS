@@ -30,6 +30,7 @@ export function useArticleSummary() {
   });
   const summaryCache: Ref<Map<number, SummaryResult>> = ref(new Map());
   const loadingSummaries: Ref<Set<number>> = ref(new Set());
+  const abortControllers: Ref<Map<number, any>> = ref(new Map());
 
   // Load summary settings
   async function loadSummarySettings(): Promise<void> {
@@ -72,6 +73,19 @@ export function useArticleSummary() {
       return null;
     }
 
+    // Cancel any existing request for this article
+    const existingController = abortControllers.value.get(article.id);
+    if (existingController) {
+      existingController.abort();
+    }
+
+    // Create new AbortController for this request
+    const controller = (window as any).AbortController
+      ? new (window as any).AbortController()
+      : null;
+    if (controller) {
+      abortControllers.value.set(article.id, controller);
+    }
     loadingSummaries.value.add(article.id);
 
     try {
@@ -83,6 +97,7 @@ export function useArticleSummary() {
           length: summarySettings.value.length,
           content: content,
         }),
+        signal: controller?.signal,
       });
 
       if (res.ok) {
@@ -123,6 +138,11 @@ export function useArticleSummary() {
         return errorResult;
       }
     } catch (e) {
+      // Ignore aborted requests (user switched to another article)
+      if (e instanceof Error && e.name === 'AbortError') {
+        return null;
+      }
+
       const errorMessage = `${t('summaryGenerationFailed')}: ${e instanceof Error ? e.message : t('unknownError')}`;
       console.error('Error generating summary:', e);
 
@@ -138,6 +158,7 @@ export function useArticleSummary() {
       return errorResult;
     } finally {
       loadingSummaries.value.delete(article.id);
+      abortControllers.value.delete(article.id);
     }
   }
 
@@ -157,6 +178,16 @@ export function useArticleSummary() {
       summaryCache.value.delete(articleId);
     } else {
       summaryCache.value.clear();
+    }
+  }
+
+  // Cancel ongoing summary generation for a specific article
+  function cancelSummaryGeneration(articleId: number): void {
+    const controller = abortControllers.value.get(articleId);
+    if (controller) {
+      controller.abort();
+      abortControllers.value.delete(articleId);
+      loadingSummaries.value.delete(articleId);
     }
   }
 
@@ -185,6 +216,7 @@ export function useArticleSummary() {
     getCachedSummary,
     isSummaryLoading,
     clearSummaryCache,
+    cancelSummaryGeneration,
     handleSummarySettingsChange,
   };
 }

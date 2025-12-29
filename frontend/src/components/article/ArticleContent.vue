@@ -132,6 +132,7 @@ const {
   loadSummarySettings,
   generateSummary: generateSummaryComposable,
   isSummaryLoading,
+  cancelSummaryGeneration,
 } = useArticleSummary();
 
 const { translationSettings, loadTranslationSettings } = useArticleTranslation();
@@ -483,6 +484,11 @@ watch(
   () => props.article?.id,
   async (newId, oldId) => {
     if (newId !== oldId) {
+      // Cancel any ongoing summary generation for the previous article
+      if (oldId !== undefined) {
+        cancelSummaryGeneration(oldId);
+      }
+
       summaryResult.value = null;
       translatedSummary.value = '';
       translatedSummaryHTML.value = '';
@@ -617,6 +623,11 @@ watch(
 
 // Clean up event listeners
 onBeforeUnmount(() => {
+  // Cancel any ongoing summary generation
+  if (props.article?.id) {
+    cancelSummaryGeneration(props.article.id);
+  }
+
   window.removeEventListener(
     'auto-show-all-content-changed',
     onAutoShowAllContentChanged as EventListener

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**BREAKING**: The basic system (including feed fetcher, scheduler, and database cleaner) has been re-architected to improve performance and maintainability. (#350)
+**BREAKING**: The basic system (including feed fetcher, scheduler, and database cleaner) has been re-architected to improve performance and maintainability. (#350)(#366)
 
 The following changes may affect existing setups:
 
@@ -27,6 +27,7 @@ The following changes may affect existing setups:
 - Offer users a setting to enable or disable auto installation of updates after download. (#336)
 - Shortcuts can now be enabled or disabled via settings.
 - All article contents are now cached to improve loading speed when switching articles. (#344)
+- Error messages when adding/editing feeds in XPath mode are now more user-friendly. (#345)(#364)
 
 ### Fixed
 
@@ -37,10 +38,11 @@ The following changes may affect existing setups:
 - Fixed the issue where server mode fails to start due to newly added custom CSS file upload feature. (#343)
 - Fixed the issue where popup confirm window cannot be translated correctly.
 - Fixed the issue where shorcuts conflict when settings page is opened. (#355)
-- Fixed the issue where clicking mark all as read button in article list does not work correctly. (#318)(#353)
-- Fixed the issue where opening an article makes it disappear from article list when filter is applied. (#318)(#353)
+- Fixed the issue where clicking mark all as read button in article list does not work correctly. (#318)(#353)(#363)
+- Fixed the issue where opening an article makes it disappear from article list when filter is applied. (#318)(#353)(#362)
 - Fixed the issue where application name is displayed as `{{.info.ProductName}}` on Windows platform. (#351)
 - Fixed the issue where moving a feed removes advanced setting for that feed. (#356)
+- Fixed the issue where switching articles before summary generation completes causes incorrect summary display. (#365)
 
 ## [1.3.11] - 2025-12-26
 
