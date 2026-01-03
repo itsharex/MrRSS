@@ -29,9 +29,6 @@ watch(
   }
 );
 
-// Check if current value is an RSSHub URL
-const isRSSHubUrl = computed(() => localValue.value.startsWith('rsshub://'));
-
 // Dynamic placeholder
 const inputPlaceholder = computed(() => {
   return t('rsshubUrlPlaceholder');
@@ -79,35 +76,6 @@ function handleInput(event: Event) {
       @input="handleInput"
       @blur="handleBlur"
     />
-
-    <!-- Show RSSHub hint -->
-    <div
-      v-if="!isRSSHubUrl"
-      class="mt-2 p-2.5 rounded-md bg-accent/5 border border-accent/20 text-xs"
-    >
-      <div class="flex items-start gap-2">
-        <span class="text-accent">🌐</span>
-        <div class="flex-1">
-          <div class="font-semibold text-text-primary mb-1">
-            {{ t('rsshubSupported') }}
-          </div>
-          <div class="text-text-secondary space-y-0.5">
-            <div>{{ t('rsshubUsageFormat1') }}</div>
-            <div class="text-accent font-medium">{{ t('rsshubUsageFormat2') }}</div>
-          </div>
-          <div class="mt-1.5 pt-1.5 border-t border-accent/20">
-            <a
-              href="https://docs.rsshub.app/zh/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-accent hover:underline font-medium"
-            >
-              {{ t('rsshubDocs') }}
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 

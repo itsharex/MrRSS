@@ -348,7 +348,7 @@ export const useAppStore = defineStore('app', () => {
           // Note: We no longer show error toasts for failed feeds
           // Users can see error status in the feed list sidebar
 
-          // Check for app updates after initial refresh completes (only if auto_update is enabled)
+          // Check for app updates after initial refresh completes
 
           checkForAppUpdates();
         }
@@ -370,10 +370,13 @@ export const useAppStore = defineStore('app', () => {
           // Check if auto-update is enabled before downloading
           const { settings } = useSettings();
 
+          console.log('[DEBUG] Update found, auto_update =', settings.value.auto_update);
           if (settings.value.auto_update) {
+            console.log('[DEBUG] Auto-downloading update...');
             // Auto download and install in background
             autoDownloadAndInstall(data.download_url, data.asset_name);
           } else {
+            console.log('[DEBUG] Auto-update disabled, showing notification only');
             // Just show notification that update is available
             if (window.showToast) {
               window.showToast(`Update available: v${data.latest_version}`, 'info', 5000);

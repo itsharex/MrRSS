@@ -103,7 +103,7 @@ onMounted(async () => {
 
     // Get auto_update setting
     if (data.auto_update !== undefined) {
-      autoUpdate = data.auto_update; // ? 这个部分是不是返回的是 string，这样似乎都会默认为 true
+      autoUpdate = data.auto_update === 'true'; // 这里后端默认返回 'false' 的话都是 true，我这里如果不修改的话每次都会自动下载
     }
 
     // Load saved shortcuts
