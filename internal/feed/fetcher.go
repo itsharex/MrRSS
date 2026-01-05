@@ -3,10 +3,12 @@ package feed
 import (
 	"MrRSS/internal/database"
 	"MrRSS/internal/models"
+	"MrRSS/internal/rsshub"
 	"MrRSS/internal/rules"
 	"MrRSS/internal/translation"
 	"MrRSS/internal/utils"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -106,6 +108,29 @@ func (f *Fetcher) GetCleanupManager() *CleanupManager {
 	return f.cleanupManager
 }
 
+// transformRSSHubURL converts rsshub:// route to full URL
+func (f *Fetcher) transformRSSHubURL(url string) (string, error) {
+	if !rsshub.IsRSSHubURL(url) {
+		return url, nil
+	}
+
+	// Check if RSSHub is enabled
+	enabledStr, _ := f.db.GetSetting("rsshub_enabled")
+	if enabledStr != "true" {
+		return "", fmt.Errorf("RSSHub integration is disabled. Please enable it in settings")
+	}
+
+	endpoint, _ := f.db.GetSetting("rsshub_endpoint")
+	if endpoint == "" {
+		endpoint = "https://rsshub.app"
+	}
+	apiKey, _ := f.db.GetEncryptedSetting("rsshub_api_key")
+
+	route := rsshub.ExtractRoute(url)
+	client := rsshub.NewClient(endpoint, apiKey)
+	return client.BuildURL(route), nil
+}
+
 // getDataDir returns the data directory path
 func (f *Fetcher) getDataDir() (string, error) {
 	return utils.GetDataDir()
@@ -159,8 +184,13 @@ func (f *Fetcher) getHTTPClient(feed models.Feed) (*http.Client, error) {
 	}
 	// If ProxyEnabled=false, proxyURL remains empty (no proxy)
 
-	// Create HTTP client with or without proxy
-	return CreateHTTPClient(proxyURL)
+	// Create HTTP client with browser-like headers to bypass Cloudflare and anti-bot protections
+	// This is critical for RSSHub feeds and other services with anti-bot protection
+	return utils.CreateHTTPClientWithUserAgent(
+		proxyURL,
+		30*time.Second,
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+	)
 }
 
 // setupTranslator configures the translator based on database settings.

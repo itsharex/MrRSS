@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { PhCaretDown, PhCaretRight } from '@phosphor-icons/vue';
 import type { Feed } from '@/types/models';
 import { useModalClose } from '@/composables/ui/useModalClose';
 import { useFeedForm } from '@/composables/feed/useFeedForm';
+import { useAppStore } from '@/stores/app';
 import UrlInput from './parts/UrlInput.vue';
 import ScriptSelector from './parts/ScriptSelector.vue';
 import XPathConfig from './parts/XPathConfig.vue';
@@ -19,6 +21,12 @@ interface Props {
 const props = defineProps<Props>();
 
 const { t } = useI18n();
+const store = useAppStore();
+
+// Check if RSSHub is enabled
+const isRSSHubEnabled = computed(() => {
+  return store.settings?.rsshub_enabled === 'true';
+});
 
 // Use the shared feed form composable
 const {
@@ -87,6 +95,10 @@ useModalClose(() => close());
 
 function close() {
   emit('close');
+}
+
+function insertRSSHubPrefix() {
+  url.value = 'rsshub://';
 }
 
 async function submit() {
@@ -162,6 +174,47 @@ async function submit() {
 
     if (props.mode === 'edit') {
       body.id = props.feed!.id;
+    }
+
+    // Special handling for RSSHub URLs - use dedicated endpoint
+    if (body.url && typeof body.url === 'string' && body.url.startsWith('rsshub://')) {
+      const route = body.url.replace('rsshub://', '');
+
+      try {
+        // Use the specialized RSSHub add endpoint
+        const rsshubResp = await fetch('/api/rsshub/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            route: route,
+            category: category.value,
+            title: title.value,
+          }),
+        });
+
+        if (rsshubResp.ok) {
+          const rsshubResult = await rsshubResp.json();
+          if (rsshubResult.success) {
+            emit('added');
+            resetForm();
+            window.showToast(t('feedAddedSuccess'), 'success');
+            close();
+            return;
+          }
+        }
+
+        // If RSSHub endpoint failed, try the generic add endpoint as fallback
+        const errorText = await rsshubResp.text();
+        throw new Error(errorText || 'RSSHub add failed');
+      } catch (e) {
+        console.error('RSSHub add failed:', e);
+        window.showToast(
+          `${t('errorAddingFeed')}: ${e instanceof Error ? e.message : 'Unknown error'}`,
+          'error'
+        );
+        isSubmitting.value = false;
+        return;
+      }
     }
 
     const endpoint = props.mode === 'add' ? '/api/feeds/add' : '/api/feeds/update';
@@ -279,6 +332,17 @@ async function submit() {
               >
                 {{ t('emailNewsletter') }}
               </button>
+              <template v-if="isRSSHubEnabled">
+                {{ t('or') }}
+                <button
+                  type="button"
+                  class="text-xs text-accent hover:underline mx-1 inline-flex items-center gap-1"
+                  @click="insertRSSHubPrefix"
+                >
+                  <img src="/assets/plugin_icons/rsshub.svg" class="w-3 h-3" alt="RSSHub" />
+                  RSSHub
+                </button>
+              </template>
             </div>
           </div>
         </div>
@@ -333,6 +397,17 @@ async function submit() {
               >
                 {{ t('emailNewsletter') }}
               </button>
+              <template v-if="isRSSHubEnabled">
+                {{ t('or') }}
+                <button
+                  type="button"
+                  class="text-xs text-accent hover:underline mx-1 inline-flex items-center gap-1"
+                  @click="insertRSSHubPrefix"
+                >
+                  <img src="/assets/plugin_icons/rsshub.svg" class="w-3 h-3" alt="RSSHub" />
+                  RSSHub
+                </button>
+              </template>
             </div>
           </div>
         </div>
@@ -407,6 +482,17 @@ async function submit() {
               >
                 {{ t('emailNewsletter') }}
               </button>
+              <template v-if="isRSSHubEnabled">
+                {{ t('or') }}
+                <button
+                  type="button"
+                  class="text-xs text-accent hover:underline mx-1 inline-flex items-center gap-1"
+                  @click="insertRSSHubPrefix"
+                >
+                  <img src="/assets/plugin_icons/rsshub.svg" class="w-3 h-3" alt="RSSHub" />
+                  RSSHub
+                </button>
+              </template>
             </div>
           </div>
         </div>
@@ -468,6 +554,17 @@ async function submit() {
               >
                 {{ t('customScript') }}
               </button>
+              <template v-if="isRSSHubEnabled">
+                {{ t('or') }}
+                <button
+                  type="button"
+                  class="text-xs text-accent hover:underline mx-1 inline-flex items-center gap-1"
+                  @click="insertRSSHubPrefix"
+                >
+                  <img src="/assets/plugin_icons/rsshub.svg" class="w-3 h-3" alt="RSSHub" />
+                  RSSHub
+                </button>
+              </template>
             </div>
           </div>
         </div>

@@ -75,6 +75,9 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 		proxyUsername, _ := h.DB.GetEncryptedSetting("proxy_username")
 		refreshMode, _ := h.DB.GetSetting("refresh_mode")
 		retryTimeoutSeconds, _ := h.DB.GetSetting("retry_timeout_seconds")
+		rsshubApiKey, _ := h.DB.GetEncryptedSetting("rsshub_api_key")
+		rsshubEnabled, _ := h.DB.GetSetting("rsshub_enabled")
+		rsshubEndpoint, _ := h.DB.GetSetting("rsshub_endpoint")
 		rules, _ := h.DB.GetSetting("rules")
 		shortcuts, _ := h.DB.GetSetting("shortcuts")
 		shortcutsEnabled, _ := h.DB.GetSetting("shortcuts_enabled")
@@ -150,6 +153,9 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			"proxy_username":              proxyUsername,
 			"refresh_mode":                refreshMode,
 			"retry_timeout_seconds":       retryTimeoutSeconds,
+			"rsshub_api_key":              rsshubApiKey,
+			"rsshub_enabled":              rsshubEnabled,
+			"rsshub_endpoint":             rsshubEndpoint,
 			"rules":                       rules,
 			"shortcuts":                   shortcuts,
 			"shortcuts_enabled":           shortcutsEnabled,
@@ -227,6 +233,9 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 			ProxyUsername            string `json:"proxy_username"`
 			RefreshMode              string `json:"refresh_mode"`
 			RetryTimeoutSeconds      string `json:"retry_timeout_seconds"`
+			RsshubAPIKey             string `json:"rsshub_api_key"`
+			RsshubEnabled            string `json:"rsshub_enabled"`
+			RsshubEndpoint           string `json:"rsshub_endpoint"`
 			Rules                    string `json:"rules"`
 			Shortcuts                string `json:"shortcuts"`
 			ShortcutsEnabled         string `json:"shortcuts_enabled"`
@@ -478,6 +487,20 @@ func HandleSettings(h *core.Handler, w http.ResponseWriter, r *http.Request) {
 
 		if req.RetryTimeoutSeconds != "" {
 			h.DB.SetSetting("retry_timeout_seconds", req.RetryTimeoutSeconds)
+		}
+
+		if err := h.DB.SetEncryptedSetting("rsshub_api_key", req.RsshubAPIKey); err != nil {
+			log.Printf("Failed to save rsshub_api_key: %v", err)
+			http.Error(w, "Failed to save rsshub_api_key", http.StatusInternalServerError)
+			return
+		}
+
+		if req.RsshubEnabled != "" {
+			h.DB.SetSetting("rsshub_enabled", req.RsshubEnabled)
+		}
+
+		if req.RsshubEndpoint != "" {
+			h.DB.SetSetting("rsshub_endpoint", req.RsshubEndpoint)
 		}
 
 		if req.Rules != "" {
