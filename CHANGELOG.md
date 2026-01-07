@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Thumbnail images in article list are now cached to avoid disappearing after restarting the application. (#423)
+- Improved the performance of article list rendering.
 
 ### Fixed
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed the issue where can not dragging feeds into collapsed categories. (#394)
 - Fixed the issue where links can not be opened in default browser after extracting full article content. (#409)
 - Fixed the issue where can adding duplicate feeds. (#401)
+- Fixed the issue where article list stucked in some cases. (#422)
 
 **Special Thanks** to @EnterMan123 for carefully testing and reporting many of these issues!
 

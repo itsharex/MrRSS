@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { PhEyeSlash, PhStar, PhClockCountdown } from '@phosphor-icons/vue';
 import type { Article } from '@/types/models';
@@ -27,13 +27,14 @@ const { t, locale } = useI18n();
 const { showPreviewImages } = useShowPreviewImages();
 const store = useAppStore();
 
-// Check if article is from RSSHub feed
+// Check if article is from RSSHub feed - O(1) lookup using feedMap
 const isRSSHubArticle = computed(() => {
-  // RSSHub feeds have rsshub:// URL
-  return (
-    props.article.feed_title &&
-    store.feeds.some((f) => f.id === props.article.feed_id && f.url.startsWith('rsshub://'))
-  );
+  // Early return if no feed_title
+  if (!props.article.feed_title) return false;
+
+  // Use feedMap for O(1) lookup instead of O(n) find/some
+  const feed = store.feedMap.get(props.article.feed_id);
+  return feed?.url.startsWith('rsshub://') || false;
 });
 
 // Translation function wrapper for formatDate
@@ -61,44 +62,93 @@ const shouldShowImage = computed(() => {
   return showPreviewImages.value && props.article.image_url;
 });
 
+// Track if image has failed to load - use a ref to avoid recomputation
+const imageFailed = ref(false);
+const imageLoading = ref(true);
+// Track if image is in viewport for lazy loading
+const imageInViewport = ref(false);
+const imageContainerRef = ref<HTMLDivElement | null>(null);
+
+// Shared intersection observer for all ArticleItem instances
+let sharedObserver: IntersectionObserver | null = null;
+const observerTargets = new WeakMap<Element, () => void>();
+
+onMounted(() => {
+  // Use IntersectionObserver to load images only when near viewport
+  if ('IntersectionObserver' in window && imageContainerRef.value) {
+    // Create or get shared observer
+    if (!sharedObserver) {
+      sharedObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const callback = observerTargets.get(entry.target);
+            if (callback && entry.isIntersecting) {
+              callback();
+            }
+          });
+        },
+        {
+          // Start loading when image is 200px away from viewport
+          rootMargin: '200px',
+          // Trigger as soon as any part is visible
+          threshold: 0,
+        }
+      );
+    }
+
+    // Setup callback for this image
+    const callback = () => {
+      imageInViewport.value = true;
+      // Once loaded, stop observing this specific target
+      if (sharedObserver && imageContainerRef.value) {
+        sharedObserver.unobserve(imageContainerRef.value);
+        observerTargets.delete(imageContainerRef.value);
+      }
+    };
+
+    observerTargets.set(imageContainerRef.value, callback);
+    sharedObserver.observe(imageContainerRef.value);
+  } else {
+    // Fallback: always load if IntersectionObserver not available
+    imageInViewport.value = true;
+  }
+
+  // Check media cache setting
+  isMediaCacheEnabled().then((enabled) => {
+    mediaCacheEnabled.value = enabled;
+  });
+});
+
+onBeforeUnmount(() => {
+  if (sharedObserver && imageContainerRef.value) {
+    sharedObserver.unobserve(imageContainerRef.value);
+    observerTargets.delete(imageContainerRef.value);
+  }
+});
+
 function handleImageLoad(event: Event) {
   const target = event.target as HTMLImageElement;
   const url = target.src;
 
   // Mark as loaded in global cache
   imageCache.markAsLoaded(url);
-  target.style.display = '';
+  imageLoading.value = false;
+  imageFailed.value = false;
+
+  // Add fade-in animation
+  target.style.opacity = '1';
 }
 
 function handleImageError(event: Event) {
   const target = event.target as HTMLImageElement;
   const url = target.src;
 
-  // Check if we have a cached version to restore
-  if (imageCache.hasCached(url)) {
-    const cachedUrl = imageCache.getImageUrl(url);
-    if (cachedUrl !== url) {
-      target.src = cachedUrl;
-      return;
-    }
-  }
+  // Mark as failed and stop retrying
+  imageLoading.value = false;
+  imageFailed.value = true;
 
-  // Handle error with retry logic
-  const result = imageCache.handleLoadError(url);
-
-  if (result.shouldRetry && result.delay) {
-    // Retry after delay
-    setTimeout(() => {
-      if (target.parentNode) {
-        // Reset retry counter and trigger reload
-        imageCache.resetRetry(url);
-        target.src = url;
-      }
-    }, result.delay);
-  } else if (!imageCache.hasCached(url)) {
-    // Final failure with no cache - hide the image
-    target.style.display = 'none';
-  }
+  // Update cache to mark as permanently failed
+  imageCache.handleLoadError(url);
 }
 
 // Hover mark as read functionality
@@ -178,13 +228,28 @@ onUnmounted(() => {
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
-    <img
-      v-if="shouldShowImage"
-      :src="imageUrl"
-      class="w-16 h-12 sm:w-20 sm:h-[60px] object-cover rounded bg-bg-tertiary shrink-0 border border-border"
-      @load="handleImageLoad"
-      @error="handleImageError"
-    />
+    <!-- Image placeholder with lazy loading - hidden completely on error -->
+    <div
+      v-if="shouldShowImage && !imageFailed"
+      ref="imageContainerRef"
+      class="article-thumbnail-placeholder"
+    >
+      <img
+        v-if="imageInViewport && imageUrl"
+        :src="imageUrl"
+        :alt="article.title"
+        class="article-thumbnail"
+        :class="{ 'image-loaded': !imageLoading }"
+        decoding="async"
+        @load="handleImageLoad"
+        @error="handleImageError"
+      />
+      <!-- Loading placeholder - only shown while loading -->
+      <div
+        v-if="imageLoading && imageInViewport"
+        class="article-thumbnail article-thumbnail-loading"
+      />
+    </div>
 
     <div class="flex-1 min-w-0">
       <div class="flex items-start gap-1.5 sm:gap-2">
@@ -302,5 +367,31 @@ onUnmounted(() => {
   -webkit-box-orient: vertical;
   display: -webkit-box;
   overflow: hidden;
+}
+
+.article-thumbnail {
+  @apply w-16 h-12 sm:w-20 sm:h-[60px] object-cover rounded bg-bg-tertiary shrink-0 border border-border;
+  /* Performance optimizations */
+  contain: layout style paint;
+  will-change: auto;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.article-thumbnail.image-loaded {
+  opacity: 1;
+}
+
+.article-thumbnail-placeholder {
+  @apply w-16 h-12 sm:w-20 sm:h-[60px] shrink-0 border border-border rounded overflow-hidden bg-bg-tertiary;
+  /* Prevent layout shift and optimize rendering */
+  contain: layout style;
+  flex-shrink: 0;
+}
+
+.article-thumbnail-loading {
+  @apply w-full h-full bg-bg-tertiary animate-pulse;
+  /* Minimal styling for loading state */
+  contain: layout style;
 }
 </style>

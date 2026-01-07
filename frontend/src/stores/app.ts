@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, type Ref } from 'vue';
+import { ref, computed, type Ref } from 'vue';
 import type { Article, Feed, UnreadCounts, RefreshProgress } from '@/types/models';
 import { useSettings } from '@/composables/core/useSettings';
 
@@ -50,6 +50,12 @@ export const useAppStore = defineStore('app', () => {
   // State
   const articles = ref<Article[]>([]);
   const feeds = ref<Feed[]>([]);
+  // Feed map for O(1) lookups - computed from feeds array
+  const feedMap = computed(() => {
+    const map = new Map<number, Feed>();
+    feeds.value.forEach((feed) => map.set(feed.id, feed));
+    return map;
+  });
   const unreadCounts = ref<UnreadCounts>({
     total: 0,
     feedCounts: {},
@@ -77,9 +83,7 @@ export const useAppStore = defineStore('app', () => {
     currentFilter.value = filter;
     currentFeedId.value = null;
     currentCategory.value = null;
-    page.value = 1;
-    articles.value = [];
-    hasMore.value = true;
+    // Clear and reset will be handled by fetchArticles
     fetchArticles();
   }
 
@@ -91,16 +95,11 @@ export const useAppStore = defineStore('app', () => {
       currentFilter.value = 'imageGallery';
       currentFeedId.value = feedId;
       currentCategory.value = null;
-      page.value = 1;
-      articles.value = [];
-      hasMore.value = true;
+      // Clear and reset will be handled by fetchArticles
     } else {
       currentFilter.value = '';
       currentFeedId.value = feedId;
       currentCategory.value = null;
-      page.value = 1;
-      articles.value = [];
-      hasMore.value = true;
       fetchArticles();
     }
   }
@@ -109,15 +108,18 @@ export const useAppStore = defineStore('app', () => {
     currentFilter.value = '';
     currentFeedId.value = null;
     currentCategory.value = category;
-    page.value = 1;
-    articles.value = [];
-    hasMore.value = true;
     fetchArticles();
   }
 
   async function fetchArticles(append: boolean = false): Promise<void> {
     if (isLoading.value) return;
-    if (!append && !hasMore.value) hasMore.value = true;
+
+    // If not appending, reset to page 1 and clear articles
+    if (!append) {
+      page.value = 1;
+      articles.value = [];
+      hasMore.value = true;
+    }
 
     isLoading.value = true;
     const limit = 50;
@@ -590,6 +592,7 @@ export const useAppStore = defineStore('app', () => {
     // State
     articles,
     feeds,
+    feedMap,
     unreadCounts,
     currentFilter,
     currentFeedId,
