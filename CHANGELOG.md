@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed the issue where URLs are not trimmed correctly when adding or editing feeds. (#413)
 - Fixed the issue where summary can not be regenerated after the article content changed. (#412)
-- Fixed the issue of some small style problems. (#396, #397, #402, #407, #428)
+- Fixed the issue of some small style problems. (#396, #397, #402, #407, #428, #430)
 - Fixed the issue where image gallery view shows only 2 columns. (#399)
 - Fixed the issue of left and right click actions not working correctly in feeds list. (#394)
 - Fixed the issue where can not dragging feeds into collapsed categories. (#394)
