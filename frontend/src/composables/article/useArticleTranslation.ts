@@ -74,18 +74,39 @@ export function useArticleTranslation() {
     translatingArticles.value.add(article.id);
 
     try {
+      const requestBody = {
+        article_id: article.id,
+        title: article.title,
+        target_language: translationSettings.value.targetLang,
+      };
+
+      // Debug: Log translation request
+      console.log('[Translation Debug] Request:', {
+        articleId: article.id,
+        originalTitle: article.title,
+        targetLang: translationSettings.value.targetLang,
+        requestBody,
+      });
+
       const res = await fetch('/api/articles/translate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          article_id: article.id,
-          title: article.title,
-          target_language: translationSettings.value.targetLang,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (res.ok) {
         const data = await res.json();
+
+        // Debug: Log translation response
+        console.log('[Translation Debug] Response:', {
+          articleId: article.id,
+          originalTitle: article.title,
+          translatedTitle: data.translated_title,
+          limitReached: data.limit_reached,
+          skipped: data.skipped,
+          response: data,
+        });
+
         // Update the article in the store
         article.translated_title = data.translated_title;
 

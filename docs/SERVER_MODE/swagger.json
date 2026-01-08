@@ -34,7 +34,7 @@
                     "200": {
                         "description": "Test result (config_valid, connection_success, model_available, response_time_ms, test_time, error_message)",
                         "schema": {
-                            "$ref": "#/definitions/ai.TestResult"
+                            "$ref": "#/definitions/handlers.TestResult"
                         }
                     },
                     "500": {
@@ -66,7 +66,7 @@
                     "200": {
                         "description": "Empty test result (config_valid, connection_success, model_available, response_time_ms, test_time)",
                         "schema": {
-                            "$ref": "#/definitions/ai.TestResult"
+                            "$ref": "#/definitions/handlers.TestResult"
                         }
                     }
                 }
@@ -298,6 +298,123 @@
                                 "valid": {
                                     "type": "boolean"
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/statistics": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Get statistics",
+                "parameters": [
+                    {
+                        "enum": [
+                            "week",
+                            "month",
+                            "year",
+                            "all",
+                            "custom"
+                        ],
+                        "type": "string",
+                        "default": "week",
+                        "description": "Time period",
+                        "name": "period",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "Period offset for navigation (e.g., -1 for previous, 1 for next)",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD format, required for period=custom)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD format, required for period=custom)",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/statistics.StatSummary"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes all statistics data from the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Reset all statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/statistics/all-time": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Get all-time statistics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/statistics/available-months": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "statistics"
+                ],
+                "summary": "Get available months",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
                             }
                         }
                     }
@@ -3776,29 +3893,6 @@
         }
     },
     "definitions": {
-        "ai.TestResult": {
-            "type": "object",
-            "properties": {
-                "config_valid": {
-                    "type": "boolean"
-                },
-                "connection_success": {
-                    "type": "boolean"
-                },
-                "error_message": {
-                    "type": "string"
-                },
-                "model_available": {
-                    "type": "boolean"
-                },
-                "response_time_ms": {
-                    "type": "integer"
-                },
-                "test_time": {
-                    "type": "string"
-                }
-            }
-        },
         "article.ExportToObsidianRequest": {
             "type": "object",
             "properties": {
@@ -4106,6 +4200,29 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.TestResult": {
+            "type": "object",
+            "properties": {
+                "config_valid": {
+                    "type": "boolean"
+                },
+                "connection_success": {
+                    "type": "boolean"
+                },
+                "error_message": {
+                    "type": "string"
+                },
+                "model_available": {
+                    "type": "boolean"
+                },
+                "response_time_ms": {
+                    "type": "integer"
+                },
+                "test_time": {
                     "type": "string"
                 }
             }
@@ -4436,6 +4553,68 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "position": {
+                    "description": "Execution order (0 = first)",
+                    "type": "integer"
+                }
+            }
+        },
+        "statistics.StatPeriod": {
+            "type": "string",
+            "enum": [
+                "week",
+                "month",
+                "year",
+                "all",
+                "custom"
+            ],
+            "x-enum-varnames": [
+                "PeriodWeek",
+                "PeriodMonth",
+                "PeriodYear",
+                "PeriodAll",
+                "PeriodCustom"
+            ]
+        },
+        "statistics.StatSummary": {
+            "type": "object",
+            "properties": {
+                "can_navigate": {
+                    "type": "boolean"
+                },
+                "daily_data": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "display_label": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "has_next": {
+                    "type": "boolean"
+                },
+                "has_previous": {
+                    "type": "boolean"
+                },
+                "period": {
+                    "$ref": "#/definitions/statistics.StatPeriod"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "totals": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
                 }
             }
         },

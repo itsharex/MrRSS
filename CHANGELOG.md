@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Supported statistics tab in settings modal to view usage statistics over time.
 - Supported manually sorting rules for advanced users. (#398)
 - Supported Gemini service API. (#437)
+- Supported language detection to reduce unnecessary translation requests. (#410)
 
 ### Changed
 

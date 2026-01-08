@@ -44,6 +44,25 @@ func HandleTranslateArticle(h *core.Handler, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Step 1: Pre-translation language detection to avoid unnecessary API calls
+	detector := translation.GetLanguageDetector()
+	if !detector.ShouldTranslate(req.Title, req.TargetLang) {
+		// Text is already in target language, return original title
+		log.Printf("Article %d title is already in target language %s, skipping translation", req.ArticleID, req.TargetLang)
+		if err := h.DB.UpdateArticleTranslation(req.ArticleID, req.Title); err != nil {
+			log.Printf("Error updating article translation: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"translated_title": req.Title,
+			"limit_reached":    false,
+			"skipped":          true, // Indicate translation was skipped
+		})
+		return
+	}
+
+	// Step 2: Proceed with translation
 	// Check if we should use AI translation or fallback to Google
 	provider, _ := h.DB.GetSetting("translation_provider")
 	isAIProvider := provider == "ai"
@@ -90,6 +109,24 @@ func HandleTranslateArticle(h *core.Handler, w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Step 3: Post-translation check - if translation equals original, it was already in target language
+	// This provides a safety net in case pre-translation detection was inaccurate
+	if translatedTitle == req.Title {
+		log.Printf("Translation output equals original for article %d, confirming no translation needed", req.ArticleID)
+		// Still update DB with the "translated" text (which is the original)
+		if err := h.DB.UpdateArticleTranslation(req.ArticleID, translatedTitle); err != nil {
+			log.Printf("Error updating article translation: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"translated_title": translatedTitle,
+			"limit_reached":    limitReached,
+			"skipped":          true, // Indicate no actual translation was performed
+		})
+		return
+	}
+
 	// Update the article with the translated title
 	if err := h.DB.UpdateArticleTranslation(req.ArticleID, translatedTitle); err != nil {
 		log.Printf("Error updating article translation: %v", err)
@@ -100,6 +137,7 @@ func HandleTranslateArticle(h *core.Handler, w http.ResponseWriter, r *http.Requ
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"translated_title": translatedTitle,
 		"limit_reached":    limitReached,
+		"skipped":          false, // Translation was performed
 	})
 }
 
@@ -161,6 +199,21 @@ func HandleTranslateText(h *core.Handler, w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Step 1: Pre-translation language detection to avoid unnecessary API calls
+	detector := translation.GetLanguageDetector()
+	if !detector.ShouldTranslate(req.Text, req.TargetLang) {
+		// Text is already in target language, return original text
+		log.Printf("Text is already in target language %s, skipping translation", req.TargetLang)
+		htmlText := utils.ConvertMarkdownToHTML(req.Text)
+		json.NewEncoder(w).Encode(map[string]string{
+			"translated_text": req.Text,
+			"html":            htmlText,
+			"skipped":         "true", // Indicate translation was skipped
+		})
+		return
+	}
+
+	// Step 2: Proceed with translation
 	// Check if we should use AI translation or fallback to Google
 	provider, _ := h.DB.GetSetting("translation_provider")
 	isAIProvider := provider == "ai"
@@ -205,12 +258,26 @@ func HandleTranslateText(h *core.Handler, w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Step 3: Post-translation check - if translation equals original, it was already in target language
+	// This provides a safety net in case pre-translation detection was inaccurate
+	if translatedText == req.Text {
+		log.Printf("Translation output equals original, confirming no translation needed")
+		htmlText := utils.ConvertMarkdownToHTML(translatedText)
+		json.NewEncoder(w).Encode(map[string]string{
+			"translated_text": translatedText,
+			"html":            htmlText,
+			"skipped":         "true", // Indicate no actual translation was performed
+		})
+		return
+	}
+
 	// Convert translated markdown to HTML
 	htmlText := utils.ConvertMarkdownToHTML(translatedText)
 
 	json.NewEncoder(w).Encode(map[string]string{
 		"translated_text": translatedText,
 		"html":            htmlText,
+		"skipped":         "false", // Translation was performed
 	})
 }
 
