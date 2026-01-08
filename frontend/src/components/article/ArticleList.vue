@@ -265,14 +265,6 @@ function onRefreshTooltipHide(): void {
 
 // Article selection and interaction
 function selectArticle(article: Article): void {
-  // If clicking the same article, close the detail view
-  if (store.currentArticleId === article.id) {
-    store.currentArticleId = null;
-    // Remove from temporarily keep list when closing
-    temporarilyKeepArticles.value.delete(article.id);
-    return;
-  }
-
   // Reset user preference when selecting article via normal click
   window.dispatchEvent(new CustomEvent('reset-user-view-preference'));
 

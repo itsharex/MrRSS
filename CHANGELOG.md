@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Thumbnail images in article list are now cached to avoid disappearing after restarting the application. (#423)
 - Improved the performance of article list rendering.
+- Clicking an article again will not close the article content viewer now. (#434)
 
 ### Fixed
 
